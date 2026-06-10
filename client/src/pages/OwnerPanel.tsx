@@ -35,6 +35,7 @@ function OwnerSidebar({ active, onTabChange }: { active: string; onTabChange: (t
     { id: "agenda", label: "Agenda", icon: Calendar },
     { id: "barbeiros", label: "Barbeiros", icon: Users },
     { id: "servicos", label: "Serviços", icon: Scissors },
+    { id: "branding", label: "Branding", icon: Store },
   ];
 
   return (
@@ -550,6 +551,95 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
 }
 
 // ── Main Owner Panel ─────────────────────────────────────────────────────────
+// ── Branding Tab ──────────────────────────────────────────────────────────
+function BrandingTab({ barbershop }: { barbershop: any }) {
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [accentColor, setAccentColor] = useState(barbershop.accentColor || "#C9A84C");
+  const utils = trpc.useUtils();
+
+  const uploadLogoMut = trpc.branding.uploadLogo.useMutation({
+    onSuccess: () => { toast.success("Logo atualizado!"); utils.barbershops.getById.invalidate(); setLogoFile(null); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const updateColorMut = trpc.branding.updateAccentColor.useMutation({
+    onSuccess: () => { toast.success("Cor atualizada!"); utils.barbershops.getById.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleLogoUpload = async () => {
+    if (!logoFile) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = (e.target?.result as string).split(",")[1];
+      uploadLogoMut.mutate({ barbershopId: barbershop.id, base64 });
+    };
+    reader.readAsDataURL(logoFile);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Personalização</h2>
+      </div>
+
+      {/* Logo Upload */}
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <div>
+          <Label className="text-foreground font-semibold block mb-3">Logotipo</Label>
+          {barbershop.logoUrl && (
+            <div className="mb-4 flex items-center gap-4">
+              <img src={barbershop.logoUrl} alt="Logo" className="w-16 h-16 rounded object-cover" />
+              <p className="text-muted-foreground text-sm">Logo atual</p>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+              className="bg-background border-border"
+            />
+            <Button
+              onClick={handleLogoUpload}
+              disabled={!logoFile || uploadLogoMut.isPending}
+              className="flex-shrink-0"
+            >
+              {uploadLogoMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Upload
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Accent Color */}
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <div>
+          <Label className="text-foreground font-semibold block mb-3">Cor de Destaque</Label>
+          <div className="flex gap-3 items-center">
+            <input
+              type="color"
+              value={accentColor}
+              onChange={(e) => setAccentColor(e.target.value)}
+              className="w-16 h-10 rounded cursor-pointer border border-border"
+            />
+            <span className="text-muted-foreground text-sm font-mono">{accentColor}</span>
+            <Button
+              onClick={() => updateColorMut.mutate({ barbershopId: barbershop.id, accentColor })}
+              disabled={updateColorMut.isPending}
+              className="ml-auto"
+            >
+              {updateColorMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Salvar
+            </Button>
+          </div>
+          <p className="text-muted-foreground text-xs mt-2">Esta cor será usada na página pública de agendamento.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function OwnerPanel() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
@@ -620,6 +710,7 @@ export default function OwnerPanel() {
         {activeTab === "agenda" && <AgendaTab barbershopId={barbershop.id} slug={barbershop.slug} />}
         {activeTab === "barbeiros" && <BarbersTab barbershopId={barbershop.id} />}
         {activeTab === "servicos" && <ServicesTab barbershopId={barbershop.id} />}
+        {activeTab === "branding" && <BrandingTab barbershop={barbershop} />}
       </main>
     </div>
   );

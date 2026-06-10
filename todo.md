@@ -74,14 +74,16 @@
 
 
 ## Personalização da Barbearia (Nova)
-- [ ] Schema: adicionar campos logoUrl e accentColor na tabela barbershops
-- [ ] Upload de logotipo: integrar com S3 via storagePut
-- [ ] Color picker: permitir seleção de cor de destaque no painel do dono
-- [ ] Página pública: exibir logotipo e usar cor de destaque personalizada
-- [ ] Booking.tsx: aplicar tema dinâmico baseado na cor da barbearia
+- [x] Schema: adicionar campos logoUrl e accentColor na tabela barbershops
+- [x] Upload de logotipo: integrar com S3 via storagePut
+- [x] Color picker: permitir seleção de cor de destaque no painel do dono
+- [x] Página pública: exibir logotipo e usar cor de destaque personalizada
+- [x] Booking.tsx: aplicar tema dinâmico baseado na cor da barbearia
+- [x] StepIndicator: aplicar cor de destaque nos passos do agendamento
+- [x] Botões principais: aplicar cor de destaque em todos os botões Continuar
 
 ## Gestão de Usuários (Nova)
-- [ ] Botão "Novo Usuário" no painel admin
+- [x] Botão "Novo Usuário" no painel admin
 - [ ] Modal/form para criar novo usuário (nome, email, role, barbearia)
-- [ ] Navegação por clique nas abas laterais (além dos links)
-- [ ] Sidebar clicável para mudar de aba sem recarregar página
+- [x] Navegação por clique nas abas laterais (além dos links)
+- [x] Sidebar clicável para mudar de aba sem recarregar página

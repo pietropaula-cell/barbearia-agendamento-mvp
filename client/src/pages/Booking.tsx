@@ -14,20 +14,22 @@ type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 const STEP_LABELS = ["Barbeiro", "Serviço", "Data", "Horário", "Seus Dados", "Confirmação"];
 
-function StepIndicator({ current, total }: { current: number; total: number }) {
+function StepIndicator({ current, total, accentColor }: { current: number; total: number; accentColor: string }) {
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
       {Array.from({ length: total }, (_, i) => i + 1).map((step) => (
         <div key={step} className="flex items-center gap-2">
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 ${
-              step < current ? "step-done" : step === current ? "step-active" : "step-pending"
-            }`}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 text-white"
+            style={{
+              backgroundColor: step <= current ? accentColor : "transparent",
+              border: step <= current ? `2px solid ${accentColor}` : "2px solid var(--border)",
+            }}
           >
             {step < current ? <Check className="w-3.5 h-3.5" /> : step}
           </div>
           {step < total && (
-            <div className={`h-px w-6 transition-colors duration-200 ${step < current ? "bg-primary/50" : "bg-border"}`} />
+            <div className="h-px w-6 transition-colors duration-200" style={{ backgroundColor: step < current ? accentColor : "var(--border)" }} />
           )}
         </div>
       ))}
@@ -241,7 +243,7 @@ export default function Booking() {
       </header>
 
       <div className="container max-w-lg mx-auto py-10 page-enter">
-        <StepIndicator current={step} total={5} />
+        <StepIndicator current={step} total={5} accentColor={accentColor} />
         <p className="text-center text-xs text-muted-foreground mb-6 uppercase tracking-widest">
           Passo {step} de 5 — {STEP_LABELS[step - 1]}
         </p>
@@ -283,7 +285,8 @@ export default function Booking() {
               <p className="text-center text-muted-foreground py-8">Nenhum barbeiro disponível.</p>
             )}
             <Button
-              className="w-full mt-6"
+              className="w-full mt-6 text-white"
+              style={{ backgroundColor: accentColor }}
               disabled={!selectedBarberId}
               onClick={() => setStep(2)}
             >
@@ -342,7 +345,7 @@ export default function Booking() {
               <Button variant="outline" className="bg-card border-border" onClick={() => setStep(1)}>
                 <ChevronLeft className="w-4 h-4 mr-1" /> Voltar
               </Button>
-              <Button className="flex-1" disabled={!selectedServiceId} onClick={() => setStep(3)}>
+              <Button className="flex-1 text-white" style={{ backgroundColor: accentColor }} disabled={!selectedServiceId} onClick={() => setStep(3)}>
                 Continuar <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -401,7 +404,7 @@ export default function Booking() {
               <Button variant="outline" className="bg-card border-border" onClick={() => setStep(2)}>
                 <ChevronLeft className="w-4 h-4 mr-1" /> Voltar
               </Button>
-              <Button className="flex-1" disabled={!selectedDate} onClick={() => setStep(4)}>
+              <Button className="flex-1 text-white" style={{ backgroundColor: accentColor }} disabled={!selectedDate} onClick={() => setStep(4)}>
                 Continuar <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -446,7 +449,7 @@ export default function Booking() {
               <Button variant="outline" className="bg-card border-border" onClick={() => setStep(3)}>
                 <ChevronLeft className="w-4 h-4 mr-1" /> Voltar
               </Button>
-              <Button className="flex-1" disabled={!selectedTime} onClick={() => setStep(5)}>
+              <Button className="flex-1 text-white" style={{ backgroundColor: accentColor }} disabled={!selectedTime} onClick={() => setStep(5)}>
                 Continuar <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -512,7 +515,8 @@ export default function Booking() {
                 <ChevronLeft className="w-4 h-4 mr-1" /> Voltar
               </Button>
               <Button
-                className="flex-1"
+                className="flex-1 text-white"
+                style={{ backgroundColor: accentColor }}
                 disabled={!customerName.trim() || customerPhone.trim().length < 8 || createMutation.isPending}
                 onClick={handleConfirm}
               >
