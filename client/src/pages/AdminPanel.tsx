@@ -36,13 +36,13 @@ import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 
-function Sidebar({ active }: { active: string }) {
+function Sidebar({ active, onTabChange }: { active: string; onTabChange: (tab: string) => void }) {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
 
   const nav = [
-    { id: "barbearias", label: "Barbearias", icon: Store, href: "/painel/admin" },
-    { id: "usuarios", label: "Usuários", icon: Users, href: "/painel/admin?tab=usuarios" },
+    { id: "barbearias", label: "Barbearias", icon: Store },
+    { id: "usuarios", label: "Usuários", icon: Users },
   ];
 
   return (
@@ -57,19 +57,19 @@ function Sidebar({ active }: { active: string }) {
         </Badge>
       </div>
       <nav className="flex-1 p-3 space-y-1">
-        {nav.map(({ id, label, icon: Icon, href }) => (
-          <Link key={id} href={href}>
-            <button
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                active === id
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          </Link>
+        {nav.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => onTabChange(id)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              active === id
+                ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </button>
         ))}
       </nav>
       <div className="p-3 border-t border-sidebar-border">
@@ -90,7 +90,7 @@ function Sidebar({ active }: { active: string }) {
 
 // ── Barbershop Form ──────────────────────────────────────────────────────────
 function BarbershopForm({ initial, onSuccess, onCancel }: {
-  initial?: { id: number; name: string; slug: string; phone?: string | null; address?: string | null; description?: string | null };
+  initial?: { id: number; name: string; slug: string; phone?: string | null; address?: string | null; description?: string | null; logoUrl?: string | null; accentColor?: string | null };
   onSuccess: () => void;
   onCancel: () => void;
 }) {
@@ -99,6 +99,8 @@ function BarbershopForm({ initial, onSuccess, onCancel }: {
   const [phone, setPhone] = useState(initial?.phone ?? "");
   const [address, setAddress] = useState(initial?.address ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [accentColor, setAccentColor] = useState(initial?.accentColor ?? "#C9A84C");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const utils = trpc.useUtils();
 
   const createMut = trpc.barbershops.create.useMutation({
@@ -110,12 +112,33 @@ function BarbershopForm({ initial, onSuccess, onCancel }: {
     onError: (e) => toast.error(e.message),
   });
 
+  const uploadLogoMut = trpc.branding.uploadLogo.useMutation({
+    onSuccess: () => { toast.success("Logo atualizado!"); utils.barbershops.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const updateAccentMut = trpc.branding.updateAccentColor.useMutation({
+    onSuccess: () => { toast.success("Cor atualizada!"); utils.barbershops.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (initial) {
-      updateMut.mutate({ id: initial.id, name, slug, phone: phone || undefined, address: address || undefined, description: description || undefined });
+      updateMut.mutate({ id: initial.id, name, slug, phone: phone || undefined, address: address || undefined, description: description || undefined, accentColor });
     } else {
       createMut.mutate({ name, slug, phone: phone || undefined, address: address || undefined, description: description || undefined });
+    }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && initial) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const base64 = (ev.target?.result as string).split(",")[1];
+        uploadLogoMut.mutate({ barbershopId: initial.id, base64 });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -153,6 +176,43 @@ function BarbershopForm({ initial, onSuccess, onCancel }: {
         <Label className="text-foreground mb-1.5 block">Descrição</Label>
         <Input value={description} onChange={(e) => setDescription(e.target.value)} className="bg-background border-border" />
       </div>
+      {initial && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-foreground mb-1.5 block">Logo</Label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={uploadLogoMut.isPending}
+                className="block w-full text-sm border border-border rounded-lg p-2 bg-background text-foreground"
+              />
+            </div>
+            <div>
+              <Label className="text-foreground mb-1.5 block">Cor de Destaque</Label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="w-12 h-10 border border-border rounded cursor-pointer"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 bg-card border-border"
+                  onClick={() => updateAccentMut.mutate({ barbershopId: initial.id, accentColor })}
+                  disabled={updateAccentMut.isPending}
+                >
+                  {updateAccentMut.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Salvar Cor"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       <div className="flex gap-3 pt-2">
         <Button type="button" variant="outline" className="bg-card border-border" onClick={onCancel}>Cancelar</Button>
         <Button type="submit" className="flex-1" disabled={isPending}>
@@ -292,6 +352,22 @@ function UsersTab() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-serif text-2xl font-bold text-foreground">Usuários</h2>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" /> Novo Usuário
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-card border-border">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-foreground">Criar Novo Usuário</DialogTitle>
+            </DialogHeader>
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-300">
+              <p className="font-medium mb-1">ℹ️ Usuários via OAuth</p>
+              <p>Novos usuários devem se cadastrar através do Manus OAuth. Aqui você pode apenas gerenciar permissões de usuários já existentes.</p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {isLoading ? (
@@ -431,17 +507,9 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar active={activeTab} />
+      <Sidebar active={activeTab} onTabChange={setActiveTab} />
       <main className="flex-1 p-8 overflow-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-card border border-border mb-8">
-            <TabsTrigger value="barbearias" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Store className="w-4 h-4 mr-2" /> Barbearias
-            </TabsTrigger>
-            <TabsTrigger value="usuarios" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Users className="w-4 h-4 mr-2" /> Usuários
-            </TabsTrigger>
-          </TabsList>
           <TabsContent value="barbearias"><BarbershopsTab /></TabsContent>
           <TabsContent value="usuarios"><UsersTab /></TabsContent>
         </Tabs>

@@ -160,3 +160,33 @@ describe("appointments.updateStatus — RBAC", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });
+
+// ── Branding router ──────────────────────────────────────────────────────────
+
+describe("branding.updateAccentColor — RBAC", () => {
+  it("throws FORBIDDEN for barber role", async () => {
+    const ctx = makeCtx({ role: "barber" });
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.branding.updateAccentColor({ barbershopId: 1, accentColor: "#FF5733" })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("throws error for invalid hex color", async () => {
+    const ctx = makeCtx({ role: "owner", barbershopId: 1 });
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.branding.updateAccentColor({ barbershopId: 1, accentColor: "invalid" })
+    ).rejects.toThrow();
+  });
+});
+
+describe("branding.uploadLogo — RBAC", () => {
+  it("throws FORBIDDEN for user role", async () => {
+    const ctx = makeCtx({ role: "user" });
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.branding.uploadLogo({ barbershopId: 1, base64: "iVBORw0KGgo=" })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});

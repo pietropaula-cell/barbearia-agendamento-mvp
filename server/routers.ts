@@ -128,7 +128,7 @@ export const appRouter = router({
         return { id };
       }),
     update: protectedProcedure
-      .input(z.object({ id: z.number(), name: z.string().min(2).optional(), slug: z.string().min(2).optional(), phone: z.string().optional(), address: z.string().optional(), description: z.string().optional(), active: z.boolean().optional() }))
+      .input(z.object({ id: z.number(), name: z.string().min(2).optional(), slug: z.string().min(2).optional(), phone: z.string().optional(), address: z.string().optional(), description: z.string().optional(), logoUrl: z.string().optional(), accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(), active: z.boolean().optional() }))
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin", "owner"]);
         const { id, ...data } = input;
@@ -318,6 +318,37 @@ export const appRouter = router({
       const all = await getAllBarbershops();
       return all.filter((b) => b.active);
     }),
+  }),
+
+  // Branding procedures (upload logo, update accent color)
+  branding: router({
+    uploadLogo: protectedProcedure
+      .input(z.object({ barbershopId: z.number(), base64: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin", "owner"]);
+        const shop = await getBarbershopById(input.barbershopId);
+        if (!shop) throw new TRPCError({ code: "NOT_FOUND" });
+        requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
+        
+        // Decode base64 and upload to S3
+        const { storagePut } = await import("./storage");
+        const buffer = Buffer.from(input.base64, "base64");
+        const { url } = await storagePut(`barbershops/${input.barbershopId}/logo.png`, buffer, "image/png");
+        
+        await updateBarbershop(input.barbershopId, { logoUrl: url });
+        return { url };
+      }),
+    updateAccentColor: protectedProcedure
+      .input(z.object({ barbershopId: z.number(), accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/) }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin", "owner"]);
+        const shop = await getBarbershopById(input.barbershopId);
+        if (!shop) throw new TRPCError({ code: "NOT_FOUND" });
+        requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
+        
+        await updateBarbershop(input.barbershopId, { accentColor: input.accentColor });
+        return { success: true };
+      }),
   }),
 });
 

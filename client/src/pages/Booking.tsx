@@ -219,16 +219,22 @@ export default function Booking() {
     );
   }
 
+  const accentColor = barbershop.accentColor || "#C9A84C";
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-background/90 backdrop-blur-md sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <Scissors className="w-4 h-4 text-primary" />
+            {barbershop.logoUrl ? (
+              <img src={barbershop.logoUrl} alt={barbershop.name} className="w-8 h-8 rounded object-cover" />
+            ) : (
+              <Scissors className="w-4 h-4" style={{ color: accentColor }} />
+            )}
             <span className="font-serif text-lg font-semibold text-foreground">{barbershop.name}</span>
           </Link>
-          <Badge variant="outline" className="border-primary/40 text-primary bg-primary/10 text-xs">
+          <Badge variant="outline" className="text-xs" style={{ borderColor: `${accentColor}66`, color: accentColor, backgroundColor: `${accentColor}15` }}>
             Agendamento
           </Badge>
         </div>

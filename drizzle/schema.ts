@@ -36,6 +36,8 @@ export const barbershops = mysqlTable("barbershops", {
   address: varchar("address", { length: 255 }),
   description: text("description"),
   ownerId: int("ownerId"),
+  logoUrl: varchar("logoUrl", { length: 255 }),
+  accentColor: varchar("accentColor", { length: 7 }).default("#C9A84C"),
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
