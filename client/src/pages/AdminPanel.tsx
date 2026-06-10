@@ -362,10 +362,7 @@ function UsersTab() {
             <DialogHeader>
               <DialogTitle className="font-serif text-foreground">Criar Novo Usuário</DialogTitle>
             </DialogHeader>
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-300">
-              <p className="font-medium mb-1">ℹ️ Usuários via OAuth</p>
-              <p>Novos usuários devem se cadastrar através do Manus OAuth. Aqui você pode apenas gerenciar permissões de usuários já existentes.</p>
-            </div>
+            <CreateUserForm barbershops={barbershops} />
           </DialogContent>
         </Dialog>
       </div>
@@ -470,6 +467,88 @@ function UsersTab() {
         </div>
       )}
     </div>
+  );
+}
+
+// ── Create User Form ────────────────────────────────────────────────────────────
+function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("user");
+  const [barbershopId, setBarbershopId] = useState<string>("");
+  const utils = trpc.useUtils();
+
+  const createMut = trpc.adminUsers.create.useMutation({
+    onSuccess: () => {
+      toast.success("Usuário criado com sucesso!");
+      utils.adminUsers.list.invalidate();
+      setName("");
+      setEmail("");
+      setRole("user");
+      setBarbershopId("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    createMut.mutate({
+      name: name || undefined,
+      email: email || undefined,
+      role: role as any,
+      barbershopId: barbershopId ? parseInt(barbershopId) : undefined,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label className="text-foreground mb-1.5 block">Nome</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome completo" className="bg-background border-border" />
+      </div>
+      <div>
+        <Label className="text-foreground mb-1.5 block">Email</Label>
+        <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email@exemplo.com" className="bg-background border-border" />
+      </div>
+      <div>
+        <Label className="text-foreground mb-1.5 block">Permissão *</Label>
+        <Select value={role} onValueChange={setRole}>
+          <SelectTrigger className="bg-background border-border">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="user">Usuário</SelectItem>
+            <SelectItem value="owner">Dono de Barbearia</SelectItem>
+            <SelectItem value="barber">Barbeiro</SelectItem>
+            <SelectItem value="admin">Administrador</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {role === "owner" || role === "barber" ? (
+        <div>
+          <Label className="text-foreground mb-1.5 block">Barbearia {role === "owner" ? "*" : ""}</Label>
+          <Select value={barbershopId} onValueChange={setBarbershopId}>
+            <SelectTrigger className="bg-background border-border">
+              <SelectValue placeholder="Selecione uma barbearia" />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border">
+              {barbershops?.map((b: any) => (
+                <SelectItem key={b.id} value={b.id.toString()}>
+                  {b.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
+      <div className="flex gap-3 pt-2">
+        <Button type="button" variant="outline" className="bg-card border-border flex-1" onClick={() => { setName(""); setEmail(""); setRole("user"); setBarbershopId(""); }}>Limpar</Button>
+        <Button type="submit" className="flex-1" disabled={createMut.isPending}>
+          {createMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          Criar Usuário
+        </Button>
+      </div>
+    </form>
   );
 }
 

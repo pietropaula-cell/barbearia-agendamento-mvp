@@ -85,6 +85,34 @@ export async function getAllUsers(): Promise<User[]> {
   return db.select().from(users).orderBy(users.createdAt);
 }
 
+export async function createUser(
+  name: string | undefined,
+  email: string | undefined,
+  role: User["role"],
+  barbershopId?: number | null
+): Promise<User> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Gerar um openId único para o novo usuário
+  const openId = `admin-created-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  const values: InsertUser = {
+    openId,
+    name: name ?? null,
+    email: email ?? null,
+    role,
+    barbershopId: barbershopId ?? null,
+  };
+  
+  await db.insert(users).values(values);
+  
+  // Buscar o usuário criado pelo openId
+  const created = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  if (!created[0]) throw new Error("Failed to create user");
+  return created[0];
+}
+
 export async function updateUserRole(
   userId: number,
   role: User["role"],

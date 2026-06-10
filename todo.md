@@ -84,6 +84,6 @@
 
 ## Gestão de Usuários (Nova)
 - [x] Botão "Novo Usuário" no painel admin
-- [ ] Modal/form para criar novo usuário (nome, email, role, barbearia)
+- [x] Modal/form para criar novo usuário (nome, email, role, barbearia)
 - [x] Navegação por clique nas abas laterais (além dos links)
 - [x] Sidebar clicável para mudar de aba sem recarregar página

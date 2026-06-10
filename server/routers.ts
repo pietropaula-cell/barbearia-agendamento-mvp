@@ -5,6 +5,7 @@ import {
   createBarber,
   createBarbershop,
   createService,
+  createUser,
   deleteBarber,
   deleteBarbershop,
   deleteService,
@@ -98,6 +99,16 @@ export const appRouter = router({
       requireRole(ctx.user.role, ["admin"]);
       return getAllUsers();
     }),
+    create: protectedProcedure
+      .input(z.object({ name: z.string().optional(), email: z.string().email().optional(), role: z.enum(["user", "admin", "owner", "barber"]), barbershopId: z.number().optional() }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        if ((input.role === "owner" || input.role === "barber") && !input.barbershopId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Barbearia eh obrigatoria para Dono ou Barbeiro" });
+        }
+        const user = await createUser(input.name, input.email, input.role, input.barbershopId);
+        return user;
+      }),
     updateRole: protectedProcedure
       .input(z.object({ userId: z.number(), role: z.enum(["user", "admin", "owner", "barber"]), barbershopId: z.number().nullable().optional() }))
       .mutation(async ({ ctx, input }) => {
