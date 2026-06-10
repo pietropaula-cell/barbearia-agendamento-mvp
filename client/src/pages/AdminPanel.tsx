@@ -207,9 +207,17 @@ function BarbershopsTab() {
                   <p className="font-semibold text-foreground truncate">{shop.name}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <p className="text-muted-foreground text-xs truncate">/{shop.slug}</p>
-                    <a href={`/agendar/${shop.slug}`} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/agendar/${shop.slug}`;
+                        navigator.clipboard.writeText(url);
+                        toast.success("Link copiado!");
+                      }}
+                      className="text-primary hover:text-primary/80 transition-colors"
+                      title="Copiar link público"
+                    >
                       <LinkIcon className="w-3 h-3" />
-                    </a>
+                    </button>
                   </div>
                   {shop.address && <p className="text-muted-foreground text-xs truncate">{shop.address}</p>}
                 </div>

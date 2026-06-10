@@ -62,3 +62,12 @@
 - [x] Testes de routers: appointments (disponibilidade, RBAC)
 - [x] Testes de routers: public booking (getBarbershop, getAvailableSlots, getAvailableDates)
 - [x] Total: 13 testes passando
+
+
+## Link Público de Agendamento
+- [x] Rota pública: /agendar/:slug para cada barbearia
+- [x] Botão de cópia do link no painel do Admin (copia para clipboard)
+- [x] Botão de cópia do link no painel do Dono (copia para clipboard)
+- [x] Botão de visualização do link público (abre em nova aba)
+- [x] Fluxo de agendamento pré-carregado com a barbearia do slug
+- [x] Isolamento de dados: cliente vê apenas barbeiros, serviços e horários da barbearia específica

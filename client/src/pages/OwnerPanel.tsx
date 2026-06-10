@@ -463,11 +463,25 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-serif text-2xl font-bold text-foreground">Agenda</h2>
-        <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer">
-          <Button variant="outline" size="sm" className="bg-card border-border gap-2">
-            <LinkIcon className="w-3.5 h-3.5" /> Link Público
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-card border-border gap-2"
+            onClick={() => {
+              const url = `${window.location.origin}/agendar/${slug}`;
+              navigator.clipboard.writeText(url);
+              toast.success("Link copiado!");
+            }}
+          >
+            <LinkIcon className="w-3.5 h-3.5" /> Copiar Link
           </Button>
-        </a>
+          <a href={`/agendar/${slug}`} target="_blank" rel="noreferrer">
+            <Button variant="outline" size="sm" className="bg-card border-border gap-2">
+              <LinkIcon className="w-3.5 h-3.5" /> Visualizar
+            </Button>
+          </a>
+        </div>
       </div>
 
       {isLoading ? (
