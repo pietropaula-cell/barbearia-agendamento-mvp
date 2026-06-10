@@ -361,6 +361,103 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+  seed: router({
+    createTestData: publicProcedure.mutation(async () => {
+      // Criar barbearia de teste
+      const barbershopId = await createBarbershop({
+        name: "Barbearia Premium",
+        slug: "barbearia-premium",
+        phone: "(11) 98765-4321",
+        address: "Rua das Flores, 123 - São Paulo, SP",
+        description: "A melhor barbearia da região",
+        accentColor: "#C9A84C" as const,
+        active: true,
+      });
+
+      // Criar usuário owner de teste
+      const owner = await createUser(
+        "João Silva",
+        "joao@barbearia.com",
+        "owner",
+        barbershopId
+      );
+
+      // Criar barbeiros
+      const barber1 = await createBarber({
+        barbershopId: barbershopId,
+        name: "Carlos",
+        bio: "Corte Clássico",
+        active: true,
+      });
+
+      const barber2 = await createBarber({
+        barbershopId: barbershopId,
+        name: "Roberto",
+        bio: "Barba e Corte",
+        active: true,
+      });
+
+      const barber3 = await createBarber({
+        barbershopId: barbershopId,
+        name: "Felipe",
+        bio: "Design de Sobrancelha",
+        active: true,
+      });
+
+      // Criar serviços
+      const service1Id = await createService({
+        barbershopId: barbershopId,
+        name: "Corte Clássico",
+        durationMin: 30,
+        price: "50.00",
+        active: true,
+      });
+
+      const service2Id = await createService({
+        barbershopId: barbershopId,
+        name: "Corte + Barba",
+        durationMin: 45,
+        price: "80.00",
+        active: true,
+      });
+
+      const service3Id = await createService({
+        barbershopId: barbershopId,
+        name: "Barba",
+        durationMin: 20,
+        price: "40.00",
+        active: true,
+      });
+
+      const service4Id = await createService({
+        barbershopId: barbershopId,
+        name: "Hidratação",
+        durationMin: 40,
+        price: "60.00",
+        active: true,
+      });
+
+      return {
+        success: true,
+        data: {
+          barbershop: { id: barbershopId, name: "Barbearia Premium", slug: "barbearia-premium" },
+          owner: { id: owner.id, name: owner.name, email: owner.email, role: owner.role || "owner" },
+          barbers: [
+            { id: barber1, name: "Carlos" },
+            { id: barber2, name: "Roberto" },
+            { id: barber3, name: "Felipe" },
+          ],
+          services: [
+            { id: service1Id, name: "Corte Clássico", price: 50.0 },
+            { id: service2Id, name: "Corte + Barba", price: 80.0 },
+            { id: service3Id, name: "Barba", price: 40.0 },
+            { id: service4Id, name: "Hidratação", price: 60.0 },
+          ],
+          message: `Dados de teste criados! Faça login com email: joao@barbearia.com`,
+        },
+      };
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

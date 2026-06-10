@@ -61,7 +61,7 @@
 - [x] Testes de routers: barbershops (RBAC)
 - [x] Testes de routers: appointments (disponibilidade, RBAC)
 - [x] Testes de routers: public booking (getBarbershop, getAvailableSlots, getAvailableDates)
-- [x] Total: 13 testes passando
+- [x] Total: 16 testes passando
 
 
 ## Link Público de Agendamento
@@ -87,3 +87,9 @@
 - [x] Modal/form para criar novo usuário (nome, email, role, barbearia)
 - [x] Navegação por clique nas abas laterais (além dos links)
 - [x] Sidebar clicável para mudar de aba sem recarregar página
+
+## Seed Data (Nova)
+- [x] Procedure seed.createTestData para criar dados de teste
+- [x] Corrigir TypeScript errors no seed procedure
+- [x] Seed cria: barbearia, owner, 3 barbeiros, 4 serviços
+- [x] Todos os 16 testes passando
