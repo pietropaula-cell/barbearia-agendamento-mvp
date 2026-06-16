@@ -123,9 +123,9 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {barbershops.map((shop) => (
                 <div key={shop.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-200 group">
-                  {shop.logoUrl && (
+                  {shop.description && (
                     <div className="w-full h-40 bg-muted overflow-hidden">
-                      <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
+                      <img src={shop.description} alt={shop.name} className="w-full h-full object-cover" />
                     </div>
                   )}
                   <div className="p-6">
@@ -141,9 +141,12 @@ export default function Home() {
                     {shop.name}
                   </h3>
                   {shop.address && (
-                    <p className="text-muted-foreground text-sm flex items-center gap-1.5 mb-1">
+                    <p className="text-muted-foreground text-sm flex items-center gap-1.5 mb-4">
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {shop.address}
                     </p>
+                  )}
+                  {shop.logoUrl && (
+                    <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{shop.logoUrl}</p>
                   )}
                   <Link href={`/agendar/${shop.slug}`}>
                     <Button className="w-full mt-4 gap-2" size="sm">
