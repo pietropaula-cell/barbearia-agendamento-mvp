@@ -154,6 +154,14 @@ export const appRouter = router({
       await deleteBarbershop(input.id);
       return { success: true };
     }),
+    toggleStatus: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+      requireRole(ctx.user.role, ["admin", "owner"]);
+      const barbershop = await getBarbershopById(input.id);
+      if (!barbershop) throw new TRPCError({ code: "NOT_FOUND" });
+      requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.id);
+      await updateBarbershop(input.id, { active: !barbershop.active });
+      return { success: true };
+    }),
   }),
   barbers: router({
     list: protectedProcedure.input(z.object({ barbershopId: z.number() })).query(async ({ ctx, input }) => {

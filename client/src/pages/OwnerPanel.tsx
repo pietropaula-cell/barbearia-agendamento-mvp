@@ -652,6 +652,14 @@ export default function OwnerPanel() {
 
   const barbershop = barbershops?.[0];
 
+  const toggleStatusMut = trpc.barbershops.toggleStatus.useMutation({
+    onSuccess: () => {
+      toast.success(barbershop?.active ? "Barbearia desativada" : "Barbearia ativada");
+      trpc.useUtils().barbershops.list.invalidate();
+    },
+    onError: (error: any) => toast.error(error.message),
+  });
+
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -696,14 +704,24 @@ export default function OwnerPanel() {
       <OwnerSidebar active={activeTab} onTabChange={setActiveTab} />
       <main className="flex-1 p-8 overflow-auto">
         <div className="mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
-              <Store className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-3 justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Store className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="font-serif text-xl font-bold text-foreground">{barbershop.name}</h1>
+                <p className="text-muted-foreground text-sm">/{barbershop.slug}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-serif text-xl font-bold text-foreground">{barbershop.name}</h1>
-              <p className="text-muted-foreground text-sm">/{barbershop.slug}</p>
-            </div>
+            <Button
+              variant={barbershop.active ? "outline" : "default"}
+              onClick={() => toggleStatusMut.mutate({ id: barbershop.id })}
+              disabled={toggleStatusMut.isPending}
+            >
+              {toggleStatusMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {barbershop.active ? "Desativar" : "Ativar"}
+            </Button>
           </div>
         </div>
 
