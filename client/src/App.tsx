@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import { LoginLocal } from "./pages/LoginLocal";
 import Booking from "./pages/Booking";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
@@ -16,6 +17,7 @@ function Router() {
     <Switch>
       {/* Public routes */}
       <Route path="/" component={Home} />
+      <Route path="/login" component={LoginLocal} />
       <Route path="/agendar/:slug" component={Booking} />
 
       {/* Auth redirect */}

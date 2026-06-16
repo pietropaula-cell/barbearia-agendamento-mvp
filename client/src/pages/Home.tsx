@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { getLoginUrl } from "@/const";
+// import { getLoginUrl } from "@/const";
 import { Scissors, Calendar, Clock, Star, ChevronRight, MapPin } from "lucide-react";
 import { Link } from "wouter";
 
@@ -35,9 +35,9 @@ export default function Home() {
                 </Button>
               </Link>
             ) : (
-              <a href={getLoginUrl()}>
+              <Link href="/login">
                 <Button variant="default" size="sm">Entrar</Button>
-              </a>
+              </Link>
             )}
           </nav>
         </div>
@@ -67,11 +67,11 @@ export default function Home() {
               </Button>
             </a>
             {!isAuthenticated && (
-              <a href={getLoginUrl()}>
+              <Link href="/login">
                 <Button size="lg" variant="outline" className="gap-2 px-8 bg-card border-border hover:bg-secondary">
                   Sou Profissional
                 </Button>
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -156,9 +156,9 @@ export default function Home() {
               <p className="text-lg font-medium mb-2">Nenhuma barbearia cadastrada ainda.</p>
               <p className="text-sm">Seja o primeiro a cadastrar sua barbearia!</p>
               {!isAuthenticated && (
-                <a href={getLoginUrl()}>
+                <Link href="/login">
                   <Button className="mt-6" variant="outline">Cadastrar Barbearia</Button>
-                </a>
+                </Link>
               )}
             </div>
           )}

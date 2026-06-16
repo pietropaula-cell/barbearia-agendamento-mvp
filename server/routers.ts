@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { hashPassword, verifyPassword, generateRandomPassword } from "./auth-local";
 import {
   createAppointment,
   createBarber,
@@ -35,6 +36,9 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { getDb } from "./db";
+import { users } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 function requireRole(userRole: string | undefined, allowed: string[]): void {
   if (!userRole || !allowed.includes(userRole)) {
@@ -93,6 +97,32 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+    loginLocal: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+        
+        const user = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, input.email))
+          .limit(1);
+        
+        if (!user.length || !user[0].passwordHash) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Email ou senha inválidos" });
+        }
+        
+        if (!verifyPassword(input.password, user[0].passwordHash)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Email ou senha inválidos" });
+        }
+        
+        // Criar sessão
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, JSON.stringify({ userId: user[0].id, role: user[0].role }), cookieOptions);
+        
+        return { success: true, user: { id: user[0].id, name: user[0].name, email: user[0].email, role: user[0].role } };
+      }),
   }),
   adminUsers: router({
     list: protectedProcedure.query(async ({ ctx }) => {
