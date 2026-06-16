@@ -88,19 +88,27 @@ export async function getAllUsers(): Promise<User[]> {
 export async function createUser(
   name: string | undefined,
   email: string | undefined,
+  password: string | undefined,
   role: User["role"],
   barbershopId?: number | null
 ): Promise<User> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // Importar hashPassword
+  const { hashPassword } = await import("./auth-local");
+  
   // Gerar um openId único para o novo usuário
   const openId = `admin-created-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Hash da senha se fornecida
+  const passwordHash = password ? await hashPassword(password) : undefined;
   
   const values: InsertUser = {
     openId,
     name: name ?? null,
     email: email ?? null,
+    passwordHash: passwordHash ?? null,
     role,
     barbershopId: barbershopId ?? null,
   };
@@ -111,6 +119,12 @@ export async function createUser(
   const created = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   if (!created[0]) throw new Error("Failed to create user");
   return created[0];
+}
+
+export async function deleteUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(users).where(eq(users.id, userId));
 }
 
 export async function updateUserRole(

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { generateRandomPassword } from "./auth-local";
+import { generateRandomPassword, hashPassword } from "./auth-local";
 import { authRouter } from "./auth-router";
 import {
   createAppointment,
@@ -11,6 +11,7 @@ import {
   deleteBarber,
   deleteBarbershop,
   deleteService,
+  deleteUser,
   getAllBarbershops,
   getAllUsers,
   getAppointmentById,
@@ -95,14 +96,19 @@ export const appRouter = router({
       requireRole(ctx.user.role, ["admin"]);
       return getAllUsers();
     }),
+    delete: protectedProcedure.input(z.object({ userId: z.number() })).mutation(async ({ ctx, input }) => {
+      requireRole(ctx.user.role, ["admin"]);
+      await deleteUser(input.userId);
+      return { success: true };
+    }),
     create: protectedProcedure
-      .input(z.object({ name: z.string().optional(), email: z.string().email().optional(), role: z.enum(["user", "admin", "owner", "barber"]), barbershopId: z.number().optional() }))
+      .input(z.object({ name: z.string().optional(), email: z.string().email().optional(), password: z.string().optional(), role: z.enum(["user", "admin", "owner", "barber"]), barbershopId: z.number().optional() }))
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
         if ((input.role === "owner" || input.role === "barber") && !input.barbershopId) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Barbearia eh obrigatoria para Dono ou Barbeiro" });
         }
-        const user = await createUser(input.name, input.email, input.role, input.barbershopId);
+        const user = await createUser(input.name, input.email, input.password, input.role, input.barbershopId);
         return user;
       }),
     updateRole: protectedProcedure
@@ -374,6 +380,7 @@ export const appRouter = router({
       const owner = await createUser(
         "João Silva",
         "joao@barbearia.com",
+        "senha123456",
         "owner",
         barbershopId
       );

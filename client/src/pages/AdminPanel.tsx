@@ -341,6 +341,11 @@ function UsersTab() {
     onError: (e) => toast.error(e.message),
   });
 
+  const deleteUserMut = trpc.adminUsers.delete.useMutation({
+    onSuccess: () => { toast.success("Usuário deletado!"); utils.adminUsers.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
   const ROLE_LABELS: Record<string, string> = {
     admin: "Administrador",
     owner: "Dono de Barbearia",
@@ -394,7 +399,7 @@ function UsersTab() {
                       className="bg-card border-border text-xs"
                       onClick={() => { setEditingUser(u); setNewRole(u.role); setNewBarbershopId(u.barbershopId?.toString() ?? ""); }}
                     >
-                      <Pencil className="w-3 h-3 mr-1" /> Permissão
+                      <Pencil className="w-3 h-3 mr-1" /> Editar
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-card border-border">
@@ -456,6 +461,19 @@ function UsersTab() {
                     </div>
                   </DialogContent>
                 </Dialog>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20 text-xs"
+                  disabled={deleteUserMut.isPending}
+                  onClick={() => {
+                    if (confirm(`Tem certeza que deseja deletar ${u.name || u.email}?`)) {
+                      deleteUserMut.mutate({ userId: u.id });
+                    }
+                  }}
+                >
+                  <Trash2 className="w-3 h-3 mr-1" /> Deletar
+                </Button>
               </div>
             </div>
           ))}
@@ -474,6 +492,7 @@ function UsersTab() {
 function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
   const [barbershopId, setBarbershopId] = useState<string>("");
   const utils = trpc.useUtils();
@@ -484,6 +503,7 @@ function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
       utils.adminUsers.list.invalidate();
       setName("");
       setEmail("");
+      setPassword("");
       setRole("user");
       setBarbershopId("");
     },
@@ -495,6 +515,7 @@ function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
     createMut.mutate({
       name: name || undefined,
       email: email || undefined,
+      password: password || undefined,
       role: role as any,
       barbershopId: barbershopId ? parseInt(barbershopId) : undefined,
     });
@@ -509,6 +530,10 @@ function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
       <div>
         <Label className="text-foreground mb-1.5 block">Email</Label>
         <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email@exemplo.com" className="bg-background border-border" />
+      </div>
+      <div>
+        <Label className="text-foreground mb-1.5 block">Senha *</Label>
+        <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••" className="bg-background border-border" required />
       </div>
       <div>
         <Label className="text-foreground mb-1.5 block">Permissão *</Label>
@@ -542,7 +567,7 @@ function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
         </div>
       ) : null}
       <div className="flex gap-3 pt-2">
-        <Button type="button" variant="outline" className="bg-card border-border flex-1" onClick={() => { setName(""); setEmail(""); setRole("user"); setBarbershopId(""); }}>Limpar</Button>
+        <Button type="button" variant="outline" className="bg-card border-border flex-1" onClick={() => { setName(""); setEmail(""); setPassword(""); setRole("user"); setBarbershopId(""); }}>Limpar</Button>
         <Button type="submit" className="flex-1" disabled={createMut.isPending}>
           {createMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
           Criar Usuário

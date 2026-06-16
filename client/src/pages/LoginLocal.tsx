@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 
 export function LoginLocal() {
   const [email, setEmail] = useState("");
@@ -38,6 +39,13 @@ export function LoginLocal() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <Card className="w-full max-w-md p-8">
+        <button
+          onClick={() => setLocation("/")}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </button>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">BarberBook</h1>
           <p className="text-muted-foreground">Sistema de Agendamento para Barbearias</p>
