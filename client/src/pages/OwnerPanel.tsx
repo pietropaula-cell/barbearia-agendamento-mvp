@@ -90,6 +90,8 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [bio, setBio] = useState(initial?.bio ?? "");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
   const utils = trpc.useUtils();
 
   const createMut = trpc.barbers.create.useMutation({
@@ -100,6 +102,20 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
     onSuccess: () => { toast.success("Barbeiro atualizado!"); utils.barbers.list.invalidate(); onSuccess(); },
     onError: (e) => toast.error(e.message),
   });
+  const uploadMut = trpc.barbers.uploadAvatar.useMutation({
+    onSuccess: () => { toast.success("Foto atualizada!"); setAvatarFile(null); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onload = (ev) => setAvatarPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +135,27 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
       <div>
         <Label className="text-foreground mb-1.5 block">Bio</Label>
         <Input value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Especialidades, experiência..." className="bg-background border-border" />
+      </div>
+      <div>
+        <Label className="text-foreground mb-1.5 block">Foto</Label>
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <Input type="file" accept="image/*" onChange={handleAvatarChange} className="bg-background border-border" />
+          </div>
+          {avatarFile && initial && (
+            <Button type="button" size="sm" onClick={() => {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const base64 = (ev.target?.result as string).split(",")[1];
+                uploadMut.mutate({ barberId: initial.id, base64 });
+              };
+              reader.readAsDataURL(avatarFile);
+            }} disabled={uploadMut.isPending}>
+              {uploadMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload"}
+            </Button>
+          )}
+        </div>
+        {avatarPreview && <img src={avatarPreview} alt="Preview" className="w-16 h-16 rounded-full object-cover mt-2" />}
       </div>
       <div className="flex gap-3 pt-2">
         <Button type="button" variant="outline" className="bg-card border-border" onClick={onCancel}>Cancelar</Button>
