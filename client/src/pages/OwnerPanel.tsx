@@ -554,6 +554,7 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
 // ── Branding Tab ──────────────────────────────────────────────────────────
 function BrandingTab({ barbershop }: { barbershop: any }) {
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [facadeFile, setFacadeFile] = useState<File | null>(null);
   const [accentColor, setAccentColor] = useState(barbershop.accentColor || "#C9A84C");
   const utils = trpc.useUtils();
 
