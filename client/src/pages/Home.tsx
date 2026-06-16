@@ -122,7 +122,13 @@ export default function Home() {
           ) : barbershops && barbershops.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {barbershops.map((shop) => (
-                <div key={shop.id} className="bg-card border border-border rounded-xl p-6 hover:border-primary/40 transition-all duration-200 group">
+                <div key={shop.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-200 group">
+                  {shop.logoUrl && (
+                    <div className="w-full h-40 bg-muted overflow-hidden">
+                      <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
                       <Scissors className="w-6 h-6 text-primary" />
@@ -139,14 +145,12 @@ export default function Home() {
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {shop.address}
                     </p>
                   )}
-                  {shop.description && (
-                    <p className="text-muted-foreground text-sm mt-2 mb-4 line-clamp-2">{shop.description}</p>
-                  )}
                   <Link href={`/agendar/${shop.slug}`}>
                     <Button className="w-full mt-4 gap-2" size="sm">
                       <Calendar className="w-4 h-4" /> Agendar Agora
                     </Button>
                   </Link>
+                  </div>
                 </div>
               ))}
             </div>
