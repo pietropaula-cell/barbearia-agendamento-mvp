@@ -1,8 +1,9 @@
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import express, { Request, Response } from "express";
+import express from "express";
 import { createContext } from "../server/_core/context";
 import { appRouter } from "../server/routers";
 import cookieParser from "cookie-parser";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 
 const app = express();
 
@@ -19,10 +20,5 @@ app.use(
     createContext,
   })
 );
-
-// Health check
-app.get("/api/health", (req: Request, res: Response) => {
-  res.json({ status: "ok" });
-});
 
 export default app;
