@@ -245,7 +245,7 @@ export async function getSchedulesByBarber(barberId: number): Promise<BarberSche
 
 export async function setBarberSchedules(
   barberId: number,
-  schedules: Array<{ dayOfWeek: number; startTime: string; endTime: string }>
+  schedules: Array<{ dayOfWeek: number; startTime: string; endTime: string; breakStartTime?: string; breakEndTime?: string }>
 ): Promise<void> {
   const db = await getDb();
   if (!db) return;

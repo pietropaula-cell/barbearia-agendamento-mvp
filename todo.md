@@ -140,9 +140,16 @@
 - [ ] Exibir agendamentos encontrados com data, hora e barbeiro
 - [ ] Opção de cancelar agendamento diretamente
 
+## Intervalo na Agenda (Nova)
+- [x] Adicionar campos breakStartTime e breakEndTime ao schema
+- [x] Adicionar UI para intervalo no OwnerPanel
+- [x] Atualizar backend para aceitar breakStartTime e breakEndTime
+- [x] Testes para salvar intervalo com sucesso
+- [x] Testes para salvar sem intervalo
+
 ## Correção de Timezone
-- [ ] Corrigir horário dos agendamentos (problema -3 hrs)
-- [ ] Ajustar timezone para o horário local correto
+- [x] Corrigir horário dos agendamentos (problema -3 hrs)
+- [x] Ajustar timezone para o horário local correto
 
 ## Upload de Fachada
 - [ ] Corrigir upload de fachada não aparecendo no formulário

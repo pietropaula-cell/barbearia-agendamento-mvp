@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1781102905994,
-      "tag": "0000_dizzy_mockingbird",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1781104086375,
-      "tag": "0001_dark_hitman",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1781637510032,
-      "tag": "0002_typical_the_phantom",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1781646023179,
-      "tag": "0003_sparkling_winter_soldier",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1781649134084,
-      "tag": "0004_faulty_meggan",
+      "when": 1781649353471,
+      "tag": "0000_remarkable_red_shift",
       "breakpoints": true
     }
   ]

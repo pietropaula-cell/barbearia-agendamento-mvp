@@ -71,6 +71,8 @@ export const barberSchedules = mysqlTable("barber_schedules", {
   dayOfWeek: smallint("dayOfWeek").notNull(),
   startTime: varchar("startTime", { length: 5 }).notNull(),
   endTime: varchar("endTime", { length: 5 }).notNull(),
+  breakStartTime: varchar("breakStartTime", { length: 5 }),
+  breakEndTime: varchar("breakEndTime", { length: 5 }),
 });
 
 export type BarberSchedule = typeof barberSchedules.$inferSelect;

@@ -175,9 +175,9 @@ function ScheduleForm({ barberId, onSuccess, onCancel }: {
   onCancel: () => void;
 }) {
   const { data: existing } = trpc.barbers.getSchedules.useQuery({ barberId });
-  const [schedules, setSchedules] = useState<Record<number, { enabled: boolean; start: string; end: string }>>(() => {
-    const init: Record<number, { enabled: boolean; start: string; end: string }> = {};
-    for (let i = 0; i < 7; i++) init[i] = { enabled: false, start: "09:00", end: "18:00" };
+  const [schedules, setSchedules] = useState<Record<number, { enabled: boolean; start: string; end: string; breakStart?: string; breakEnd?: string }>>(() => {
+    const init: Record<number, { enabled: boolean; start: string; end: string; breakStart?: string; breakEnd?: string }> = {};
+    for (let i = 0; i < 7; i++) init[i] = { enabled: false, start: "09:00", end: "18:00", breakStart: "12:00", breakEnd: "13:00" };
     return init;
   });
   const [initialized, setInitialized] = useState(false);
@@ -185,10 +185,10 @@ function ScheduleForm({ barberId, onSuccess, onCancel }: {
   // Populate from existing when loaded (useEffect to avoid stale closure)
   useEffect(() => {
     if (existing && !initialized) {
-      const updated: Record<number, { enabled: boolean; start: string; end: string }> = {};
-      for (let i = 0; i < 7; i++) updated[i] = { enabled: false, start: "09:00", end: "18:00" };
+      const updated: Record<number, { enabled: boolean; start: string; end: string; breakStart?: string; breakEnd?: string }> = {};
+      for (let i = 0; i < 7; i++) updated[i] = { enabled: false, start: "09:00", end: "18:00", breakStart: "12:00", breakEnd: "13:00" };
       existing.forEach((s: any) => {
-        updated[s.dayOfWeek] = { enabled: true, start: s.startTime, end: s.endTime };
+        updated[s.dayOfWeek] = { enabled: true, start: s.startTime, end: s.endTime, breakStart: s.breakStartTime || "12:00", breakEnd: s.breakEndTime || "13:00" };
       });
       setSchedules(updated);
       setInitialized(true);
@@ -205,7 +205,7 @@ function ScheduleForm({ barberId, onSuccess, onCancel }: {
     e.preventDefault();
     const payload = Object.entries(schedules)
       .filter(([, v]) => v.enabled)
-      .map(([day, v]) => ({ dayOfWeek: parseInt(day), startTime: v.start, endTime: v.end }));
+      .map(([day, v]) => ({ dayOfWeek: parseInt(day), startTime: v.start, endTime: v.end, breakStartTime: v.breakStart, breakEndTime: v.breakEnd }));
     setMut.mutate({ barberId, schedules: payload });
   };
 
@@ -234,6 +234,20 @@ function ScheduleForm({ barberId, onSuccess, onCancel }: {
                 type="time"
                 value={schedules[day].end}
                 onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], end: e.target.value } }))}
+                className="bg-background border-border w-32 text-sm"
+              />
+              <span className="text-muted-foreground text-sm text-xs">Intervalo:</span>
+              <Input
+                type="time"
+                value={schedules[day].breakStart || "12:00"}
+                onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], breakStart: e.target.value } }))}
+                className="bg-background border-border w-32 text-sm"
+              />
+              <span className="text-muted-foreground text-sm">até</span>
+              <Input
+                type="time"
+                value={schedules[day].breakEnd || "13:00"}
+                onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], breakEnd: e.target.value } }))}
                 className="bg-background border-border w-32 text-sm"
               />
             </>

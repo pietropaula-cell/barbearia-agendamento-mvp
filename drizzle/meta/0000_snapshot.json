@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "043d6da3-9104-498c-8bf6-9744b6d8b595",
+  "id": "e60b6036-8c9a-462a-afba-1794ee1fe41a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "appointments": {
@@ -138,6 +138,20 @@
           "type": "varchar(5)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "breakStartTime": {
+          "name": "breakStartTime",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "breakEndTime": {
+          "name": "breakEndTime",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -289,6 +303,21 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "logoUrl": {
+          "name": "logoUrl",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "accentColor": {
+          "name": "accentColor",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'#C9A84C'"
         },
         "active": {
           "name": "active",
@@ -487,7 +516,7 @@
           "name": "openId",
           "type": "varchar(64)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "name": {
@@ -504,12 +533,20 @@
           "notNull": false,
           "autoincrement": false
         },
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "loginMethod": {
           "name": "loginMethod",
           "type": "varchar(64)",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'local'"
         },
         "role": {
           "name": "role",
@@ -567,6 +604,12 @@
           "name": "users_openId_unique",
           "columns": [
             "openId"
+          ]
+        },
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "columns": [
+            "email"
           ]
         }
       },

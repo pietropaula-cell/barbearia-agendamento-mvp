@@ -201,7 +201,7 @@ export const appRouter = router({
       return getSchedulesByBarber(input.barberId);
     }),
     setSchedules: protectedProcedure
-      .input(z.object({ barberId: z.number(), schedules: z.array(z.object({ dayOfWeek: z.number().min(0).max(6), startTime: z.string().regex(/^\d{2}:\d{2}$/), endTime: z.string().regex(/^\d{2}:\d{2}$/) })) }))
+      .input(z.object({ barberId: z.number(), schedules: z.array(z.object({ dayOfWeek: z.number().min(0).max(6), startTime: z.string().regex(/^\d{2}:\d{2}$/), endTime: z.string().regex(/^\d{2}:\d{2}$/), breakStartTime: z.string().regex(/^\d{2}:\d{2}$/).optional(), breakEndTime: z.string().regex(/^\d{2}:\d{2}$/).optional() })) }))
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin", "owner"]);
         const barber = await getBarberById(input.barberId);
