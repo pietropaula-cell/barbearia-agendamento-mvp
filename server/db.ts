@@ -118,6 +118,17 @@ export async function createUser(
   // Buscar o usuário criado pelo openId
   const created = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   if (!created[0]) throw new Error("Failed to create user");
+  
+  // Se o usuário é barbeiro, criar automaticamente um registro na tabela barbers
+  if (role === "barber" && barbershopId && created[0].id) {
+    await db.insert(barbers).values({
+      userId: created[0].id,
+      barbershopId: barbershopId,
+      name: name ?? "Barbeiro",
+      active: true,
+    });
+  }
+  
   return created[0];
 }
 
