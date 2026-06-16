@@ -86,11 +86,6 @@ export function LoginLocal() {
             {loginMutation.error?.message || "Erro ao fazer login"}
           </div>
         )}
-
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>Credenciais padrão:</p>
-          <p className="font-mono text-xs mt-2">admin@barbearia.com</p>
-        </div>
       </Card>
     </div>
   );
