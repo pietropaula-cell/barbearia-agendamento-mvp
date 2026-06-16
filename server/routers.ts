@@ -330,6 +330,7 @@ export const appRouter = router({
         const id = await createAppointment({ barbershopId: input.barbershopId, barberId: input.barberId, serviceId: input.serviceId, customerId: customer.id, startsAt, endsAt, status: "pending" });
         return { id, startsAt, endsAt, service: { name: service.name, price: service.price, durationMin: service.durationMin }, customer: { name: customer.name, phone: customer.phone } };
       }),
+
     cancelAppointment: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const appt = await getAppointmentById(input.id);
       if (!appt) throw new TRPCError({ code: "NOT_FOUND" });

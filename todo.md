@@ -156,3 +156,23 @@
 - [ ] Cliente conseguir buscar seus agendamentos
 - [ ] Cliente conseguir cancelar agendamentos
 - [ ] Dashboard do cliente com agendamentos
+
+## Busca de Agendamento por Telefone (Nova)
+- [ ] Adicionar opção de busca por telefone na página pública
+- [ ] Permitir cliente buscar agendamentos pelo número de telefone
+- [ ] Exibir agendamentos encontrados com data, hora e barbeiro
+- [ ] Opção de cancelar agendamento diretamente
+
+## Botão BarberBook (Nova)
+- [ ] Tornar o logo "BarberBook" um botão para voltar à página inicial
+- [ ] Adicionar em todos os painéis (admin, owner, barber, cliente)
+
+## Cadastro de Barbeiro com Foto (Nova)
+- [ ] Adicionar campo de foto ao cadastro de barbeiro
+- [ ] Adicionar login e senha ao cadastro de barbeiro
+- [ ] Barbeiro conseguir fazer login com email/telefone + senha
+- [ ] Dashboard do barbeiro com agendamentos pendentes
+- [ ] Dashboard do barbeiro com agendamentos passados
+- [ ] Barbeiro conseguir confirmar agendamentos
+- [ ] Barbeiro conseguir cancelar agendamentos
+- [ ] Exibir foto do barbeiro na seleção durante agendamento
