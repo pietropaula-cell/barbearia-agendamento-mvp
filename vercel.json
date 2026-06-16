@@ -5,8 +5,12 @@
   "outputDirectory": "dist/public",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api"
+      "source": "/api/trpc/:path*",
+      "destination": "/api/trpc"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/trpc"
     },
     {
       "source": "/:path*",
