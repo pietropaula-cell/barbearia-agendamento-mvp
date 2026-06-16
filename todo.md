@@ -93,3 +93,42 @@
 - [x] Corrigir TypeScript errors no seed procedure
 - [x] Seed cria: barbearia, owner, 3 barbeiros, 4 serviços
 - [x] Todos os 16 testes passando
+
+## Autenticação Local (Nova)
+- [x] Sistema de login/senha local (sem Manus OAuth)
+- [x] Hash de senha com PBKDF2
+- [x] Página de login local
+- [x] Admin automático criado com senha gerada
+- [x] Sessão segura com cookies
+- [x] Corrigir configuração de cookie para desenvolvimento (sameSite: lax)
+- [ ] Corrigir deploy no Vercel para rodar servidor Express
+- [ ] Testar autenticação no Vercel
+
+## Painel Admin (Nova)
+- [ ] Interface para admin gerenciar usuários (criar, editar, deletar)
+- [ ] Formulário de criação de usuário com validação
+- [ ] Listar usuários com filtros (role, barbearia)
+- [ ] Editar role e barbearia de usuário
+- [ ] Deletar usuário com confirmação
+
+## Gerenciamento de Barbeiros (Nova)
+- [ ] Interface para dono gerenciar barbeiros (criar, editar, deletar)
+- [ ] Formulário de criação de barbeiro com validação
+- [ ] Listar barbeiros da barbearia
+- [ ] Editar dados do barbeiro
+- [ ] Deletar barbeiro com confirmação
+
+## Painel Admin Completo (Nova)
+- [ ] Dashboard admin com estatísticas
+- [ ] Gerenciar barbearias (criar, editar, deletar)
+- [ ] Gerenciar usuários (criar, editar, deletar)
+- [ ] Visualizar logs de atividades
+- [ ] Configurações do sistema
+
+## Testes de Fluxo Completo (Nova)
+- [ ] Testar login local
+- [ ] Testar criação de usuário pelo admin
+- [ ] Testar criação de barbeiro pelo dono
+- [ ] Testar fluxo completo de agendamento
+- [ ] Testar confirmação de agendamento
+- [ ] Testar cancelamento de agendamento
