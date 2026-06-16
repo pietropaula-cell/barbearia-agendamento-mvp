@@ -10,11 +10,13 @@ export function LoginLocal() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
+  const utils = trpc.useUtils();
 
   const loginMutation = trpc.auth.loginLocal.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Invalidate the auth.me query to fetch fresh user data
+      await utils.auth.me.invalidate();
       setLocation("/");
-      window.location.reload();
     },
     onError: (error) => {
       console.error("Login error:", error);
@@ -26,6 +28,8 @@ export function LoginLocal() {
     setIsLoading(true);
     try {
       await loginMutation.mutateAsync({ email, password });
+    } catch (error) {
+      console.error("Login failed:", error);
     } finally {
       setIsLoading(false);
     }
