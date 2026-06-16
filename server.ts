@@ -3,6 +3,11 @@ import cookieParser from "cookie-parser";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { createContext } from "./server/_core/context";
 import { appRouter } from "./server/routers";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -45,6 +50,10 @@ app.use(
   })
 );
 
+// Serve static frontend files from dist directory
+const distPath = path.join(__dirname, "dist");
+app.use(express.static(distPath));
+
 // Error handler
 app.use((err: any, req: any, res: any, next: any) => {
   console.error("Express error:", err);
@@ -52,6 +61,11 @@ app.use((err: any, req: any, res: any, next: any) => {
     error: "Internal server error",
     message: process.env.NODE_ENV === "development" ? err.message : undefined
   });
+});
+
+// Fallback to index.html for SPA routing (must be after error handler)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
 // Start server
