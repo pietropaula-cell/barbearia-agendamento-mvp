@@ -210,6 +210,19 @@ export const appRouter = router({
         await setBarberSchedules(input.barberId, input.schedules);
         return { success: true };
       }),
+    uploadAvatar: protectedProcedure
+      .input(z.object({ barberId: z.number(), base64: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin", "owner"]);
+        const barber = await getBarberById(input.barberId);
+        if (!barber) throw new TRPCError({ code: "NOT_FOUND" });
+        requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, barber.barbershopId);
+        const { storagePut } = await import("./storage");
+        const buffer = Buffer.from(input.base64, "base64");
+        const { url } = await storagePut(`barbers/${input.barberId}/avatar.png`, buffer, "image/png");
+        await updateBarber(input.barberId, { avatarUrl: url });
+        return { url };
+      }),
   }),
   services: router({
     list: protectedProcedure.input(z.object({ barbershopId: z.number() })).query(async ({ ctx, input }) => {
