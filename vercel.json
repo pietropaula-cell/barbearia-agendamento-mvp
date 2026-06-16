@@ -1,16 +1,13 @@
 {
   "buildCommand": "pnpm build",
-  "nodeVersion": "22.x",
   "devCommand": "pnpm dev",
   "outputDirectory": "dist",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite",
-  "regions": ["iad1"],
   "rewrites": [
     {
       "source": "/:path*",
       "destination": "/index.html"
     }
-  ],
-  "env": {}
+  ]
 }
