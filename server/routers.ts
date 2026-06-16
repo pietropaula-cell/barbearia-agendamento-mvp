@@ -320,7 +320,9 @@ export const appRouter = router({
         if (!service) throw new TRPCError({ code: "NOT_FOUND", message: "Serviço não encontrado." });
         const [year, month, day] = input.date.split("-").map(Number);
         const [hour, minute] = input.time.split(":").map(Number);
-        const startsAt = new Date(Date.UTC(year, month - 1, day, hour, minute));
+        // Criar data em timezone local e converter para UTC
+        const localDate = new Date(year, month - 1, day, hour, minute);
+        const startsAt = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000);
         const endsAt = new Date(startsAt.getTime() + Number(service.durationMin) * 60 * 1000);
         const conflict = await hasConflict(input.barberId, startsAt, endsAt);
         if (conflict) throw new TRPCError({ code: "CONFLICT", message: "Horário não disponível. Por favor, escolha outro horário." });

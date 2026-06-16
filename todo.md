@@ -132,3 +132,27 @@
 - [ ] Testar fluxo completo de agendamento
 - [ ] Testar confirmação de agendamento
 - [ ] Testar cancelamento de agendamento
+
+
+## Busca de Agendamento por Telefone (Nova)
+- [ ] Adicionar opção de busca por telefone na página pública
+- [ ] Permitir cliente buscar agendamentos pelo número de telefone
+- [ ] Exibir agendamentos encontrados com data, hora e barbeiro
+- [ ] Opção de cancelar agendamento diretamente
+
+## Correção de Timezone
+- [ ] Corrigir horário dos agendamentos (problema -3 hrs)
+- [ ] Ajustar timezone para o horário local correto
+
+## Upload de Fachada
+- [ ] Corrigir upload de fachada não aparecendo no formulário
+- [ ] Exibir fachada abaixo do nome da barbearia na página pública
+- [ ] Exibir fachada durante o agendamento
+
+## Cadastro de Cliente (Nova)
+- [ ] Criar página de cadastro de cliente (telefone + senha)
+- [ ] Validar telefone e senha
+- [ ] Permitir cliente fazer login com telefone + senha
+- [ ] Cliente conseguir buscar seus agendamentos
+- [ ] Cliente conseguir cancelar agendamentos
+- [ ] Dashboard do cliente com agendamentos
