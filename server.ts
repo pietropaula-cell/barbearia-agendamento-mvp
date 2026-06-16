@@ -5,6 +5,7 @@ import { createContext } from "./server/_core/context";
 import { appRouter } from "./server/routers";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,8 +51,8 @@ app.use(
   })
 );
 
-// Serve static frontend files from dist directory
-const distPath = path.join(__dirname, "dist");
+// Serve static frontend files from dist/public directory
+const distPath = path.join(__dirname, "dist", "public");
 app.use(express.static(distPath));
 
 // Error handler
@@ -65,7 +66,12 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 // Fallback to index.html for SPA routing (must be after error handler)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
+  const indexPath = path.join(distPath, "index.html");
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ error: "Frontend not built. Run 'pnpm build' first." });
+  }
 });
 
 // Start server
