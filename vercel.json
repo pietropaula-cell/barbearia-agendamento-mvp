@@ -3,14 +3,16 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite",
   "outputDirectory": "dist/public",
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/trpc/:path*",
-      "destination": "/api/trpc"
-    },
-    {
-      "source": "/api/health",
-      "destination": "/api/trpc"
+      "source": "/api/:path*",
+      "destination": "/api"
     },
     {
       "source": "/:path*",
