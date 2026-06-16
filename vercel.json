@@ -2,10 +2,5 @@
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite",
-  "outputDirectory": "dist/public",
-  "functions": {
-    "api/index.ts": {
-      "runtime": "nodejs20.x"
-    }
-  }
+  "outputDirectory": "dist/public"
 }
