@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import { LoginLocal } from "./pages/LoginLocal";
+import { Profile } from "./pages/Profile";
 import Booking from "./pages/Booking";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
@@ -22,6 +23,7 @@ function Router() {
 
       {/* Auth redirect */}
       <Route path="/painel" component={Dashboard} />
+      <Route path="/perfil" component={Profile} />
 
       {/* Role-specific panels */}
       <Route path="/painel/admin" component={AdminPanel} />

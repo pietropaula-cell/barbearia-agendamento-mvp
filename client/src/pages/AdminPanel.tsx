@@ -30,11 +30,14 @@ import {
   Store,
   Loader2,
   Link as LinkIcon,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
+import { PasswordInput } from "@/components/ui/password-input";
 
 function Sidebar({ active, onTabChange }: { active: string; onTabChange: (tab: string) => void }) {
   const { user, logout } = useAuth();
@@ -533,7 +536,7 @@ function CreateUserForm({ barbershops }: { barbershops: any[] | undefined }) {
       </div>
       <div>
         <Label className="text-foreground mb-1.5 block">Senha *</Label>
-        <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••" className="bg-background border-border" required />
+        <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="bg-background border-border" required />
       </div>
       <div>
         <Label className="text-foreground mb-1.5 block">Permissão *</Label>
