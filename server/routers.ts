@@ -359,6 +359,21 @@ export const appRouter = router({
         await updateBarbershop(input.barbershopId, { logoUrl: url });
         return { url };
       }),
+    uploadFacade: protectedProcedure
+      .input(z.object({ barbershopId: z.number(), base64: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin", "owner"]);
+        const shop = await getBarbershopById(input.barbershopId);
+        if (!shop) throw new TRPCError({ code: "NOT_FOUND" });
+        requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
+        
+        const { storagePut } = await import("./storage");
+        const buffer = Buffer.from(input.base64, "base64");
+        const { url } = await storagePut(`barbershops/${input.barbershopId}/facade.png`, buffer, "image/png");
+        
+        await updateBarbershop(input.barbershopId, { description: url });
+        return { url };
+      }),
     updateAccentColor: protectedProcedure
       .input(z.object({ barbershopId: z.number(), accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/) }))
       .mutation(async ({ ctx, input }) => {

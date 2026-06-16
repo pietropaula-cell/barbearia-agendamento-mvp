@@ -563,6 +563,11 @@ function BrandingTab({ barbershop }: { barbershop: any }) {
     onError: (e) => toast.error(e.message),
   });
 
+  const uploadFacadeMut = trpc.branding.uploadFacade.useMutation({
+    onSuccess: () => { toast.success("Fachada atualizada!"); utils.barbershops.getById.invalidate(); setFacadeFile(null); },
+    onError: (e) => toast.error(e.message),
+  });
+
   const updateColorMut = trpc.branding.updateAccentColor.useMutation({
     onSuccess: () => { toast.success("Cor atualizada!"); utils.barbershops.getById.invalidate(); },
     onError: (e) => toast.error(e.message),
@@ -576,6 +581,16 @@ function BrandingTab({ barbershop }: { barbershop: any }) {
       uploadLogoMut.mutate({ barbershopId: barbershop.id, base64 });
     };
     reader.readAsDataURL(logoFile);
+  };
+
+  const handleFacadeUpload = async () => {
+    if (!facadeFile) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = (e.target?.result as string).split(",")[1];
+      uploadFacadeMut.mutate({ barbershopId: barbershop.id, base64 });
+    };
+    reader.readAsDataURL(facadeFile);
   };
 
   return (
@@ -607,6 +622,35 @@ function BrandingTab({ barbershop }: { barbershop: any }) {
               className="flex-shrink-0"
             >
               {uploadLogoMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Upload
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Facade Upload */}
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <div>
+          <Label className="text-foreground font-semibold block mb-3">Foto da Fachada</Label>
+          {barbershop.description && (
+            <div className="mb-4 flex items-center gap-4">
+              <img src={barbershop.description} alt="Fachada" className="w-32 h-24 rounded object-cover" />
+              <p className="text-muted-foreground text-sm">Fachada atual</p>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFacadeFile(e.target.files?.[0] || null)}
+              className="bg-background border-border"
+            />
+            <Button
+              onClick={handleFacadeUpload}
+              disabled={!facadeFile || uploadFacadeMut.isPending}
+              className="flex-shrink-0"
+            >
+              {uploadFacadeMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Upload
             </Button>
           </div>
