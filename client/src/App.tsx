@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import OwnerPanel from "./pages/OwnerPanel";
 import BarberPanel from "./pages/BarberPanel";
+import SearchAppointment from "./pages/SearchAppointment";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/login" component={LoginLocal} />
       <Route path="/agendar/:slug" component={Booking} />
+      <Route path="/buscar-agendamento" component={SearchAppointment} />
 
       {/* Auth redirect */}
       <Route path="/painel" component={Dashboard} />
