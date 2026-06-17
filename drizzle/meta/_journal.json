@@ -57,6 +57,20 @@
       "when": 1781731379101,
       "tag": "0007_military_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1781732192044,
+      "tag": "0008_bent_champions",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1781732350589,
+      "tag": "0009_calm_christian_walker",
+      "breakpoints": true
     }
   ]
 }

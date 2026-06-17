@@ -36,6 +36,11 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+
+  // Scheduled endpoints
+  const { handleWhatsappReminder } = await import("../scheduled-handlers");
+  app.post("/api/scheduled/whatsapp-reminder", handleWhatsappReminder);
+
   // tRPC API
   app.use(
     "/api/trpc",

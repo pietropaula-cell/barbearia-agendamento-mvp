@@ -195,9 +195,8 @@ export async function sendWhatsappMessage(
     if (provider === "twilio") {
       // Usar Twilio
       if (!(config as any).twilioAccountSid || !(config as any).twilioAuthToken || !(config as any).twilioWhatsappNumber) {
-        console.warn("[Twilio] Credenciais do Twilio não configuradas");
-        const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        return { success: true, messageId };
+        console.error("[Twilio] Credenciais do Twilio não configuradas");
+        return { success: false, error: "Credenciais do Twilio não configuradas. Configure na aba de WhatsApp." };
       }
 
       return sendTwilioWhatsAppMessage(
@@ -212,9 +211,8 @@ export async function sendWhatsappMessage(
     } else {
       // Usar WhatsApp Business API
       if (!config.phoneNumberId || !config.apiKey) {
-        console.warn("[WhatsApp] Credenciais da WhatsApp Business API não configuradas");
-        const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        return { success: true, messageId };
+        console.error("[WhatsApp] Credenciais da WhatsApp Business API não configuradas");
+        return { success: false, error: "Credenciais da WhatsApp Business API não configuradas. Configure na aba de WhatsApp." };
       }
 
       const whatsappAPI = createWhatsAppBusinessAPI({

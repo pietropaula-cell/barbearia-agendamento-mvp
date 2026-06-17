@@ -202,8 +202,8 @@
 - [x] Adicionar resumo semanal no BarberPanel (atendimentos por serviço, valor total confirmado)
 - [x] Adicionar/corrigir tela de trocar senha para usuário (acessível via "Meu Perfil")
 - [x] Criar tela de configuração WhatsApp para admin (API key, número)
-- [ ] Implementar envio de mensagem WhatsApp ao agendar (confirmação)
-- [ ] Implementar envio de mensagem WhatsApp 1h antes do agendamento (lembrete)
+- [x] Implementar envio de mensagem WhatsApp ao agendar (confirmação)
+- [x] Implementar envio de mensagem WhatsApp 1h antes do agendamento (lembrete)
 
 ## Teste de Conexão WhatsApp (Nova)
 - [x] Adicionar rota backend para enviar mensagem de teste

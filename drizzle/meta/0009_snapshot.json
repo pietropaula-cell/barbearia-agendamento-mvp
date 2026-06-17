@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "5bbe51e0-3aee-41ac-8bbd-d88af418deb2",
-  "prevId": "f40a217d-0b2c-42f5-8dcb-b3b5b6d18a5c",
+  "id": "17beee8b-8a04-4485-a800-ed2cad19774d",
+  "prevId": "9367f392-ee28-48f4-a7a4-d2a93d93a0df",
   "tables": {
     "appointments": {
       "name": "appointments",
@@ -67,6 +67,13 @@
         "notes": {
           "name": "notes",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reminderSentAt": {
+          "name": "reminderSentAt",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -318,6 +325,22 @@
           "notNull": false,
           "autoincrement": false,
           "default": "'#C9A84C'"
+        },
+        "openingTime": {
+          "name": "openingTime",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'08:00'"
+        },
+        "closingTime": {
+          "name": "closingTime",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'18:00'"
         },
         "active": {
           "name": "active",
@@ -658,7 +681,7 @@
           "name": "apiKey",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "twilioAccountSid": {

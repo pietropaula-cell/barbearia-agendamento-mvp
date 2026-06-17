@@ -118,6 +118,7 @@ export const appointments = mysqlTable("appointments", {
   endsAt: timestamp("endsAt").notNull(),
   status: mysqlEnum("status", ["pending", "confirmed", "cancelled", "blocked"]).default("pending").notNull(),
   notes: text("notes"),
+  reminderSentAt: timestamp("reminderSentAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
