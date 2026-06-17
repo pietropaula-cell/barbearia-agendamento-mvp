@@ -34,12 +34,20 @@ export default function BarberPanel() {
     { enabled: !!user && (user.role === "barber" || user.role === "owner" || user.role === "admin") }
   );
   const barbershopId = user?.barbershopId;
+  
+  console.log("[BarberPanel] User:", { id: user?.id, role: user?.role, barbershopId: user?.barbershopId });
+  
   const { data: barbers } = trpc.barbers.list.useQuery(
     { barbershopId: barbershopId ?? 0 },
     { enabled: !!barbershopId }
   );
+  
+  console.log("[BarberPanel] Barbers:", barbers);
+  
   // Find barber matching this user
   const myBarber = barbers?.find((b: any) => b.userId === user?.id);
+  
+  console.log("[BarberPanel] MyBarber:", myBarber);
   
   if (!myBarber && barbers && barbers.length > 0) {
     console.warn("Barbeiro não encontrado para este usuário. User ID:", user?.id, "Barbeiros:", barbers);
