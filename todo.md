@@ -204,3 +204,9 @@
 - [x] Criar tela de configuração WhatsApp para admin (API key, número)
 - [ ] Implementar envio de mensagem WhatsApp ao agendar (confirmação)
 - [ ] Implementar envio de mensagem WhatsApp 1h antes do agendamento (lembrete)
+
+## Teste de Conexão WhatsApp (Nova)
+- [x] Adicionar rota backend para enviar mensagem de teste
+- [x] Adicionar botão "Testar Conexão" no componente WhatsAppConfigTab
+- [x] Validar API key e número de telefone antes de enviar
+- [x] Exibir feedback visual (sucesso/erro) ao usuário

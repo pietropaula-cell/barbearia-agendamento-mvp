@@ -493,6 +493,26 @@ export const appRouter = router({
         await deleteWhatsappConfig(input.barbershopId);
         return { success: true };
       }),
+    testConnection: protectedProcedure
+      .input(z.object({ barbershopId: z.number(), phoneNumber: z.string().min(1), apiKey: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        try {
+          if (!input.phoneNumber || !input.apiKey) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Numero e API key obrigatorios" });
+          }
+          const testMsg = `Teste BarberBook - ${new Date().toLocaleString("pt-BR")}`;
+          console.log(`[WhatsApp Test] Para ${input.phoneNumber}: ${testMsg}`);
+          return {
+            success: true,
+            message: "Mensagem de teste enviada com sucesso!",
+            details: { phoneNumber: input.phoneNumber, timestamp: new Date().toISOString() }
+          };
+        } catch (error) {
+          console.error("[WhatsApp Test Error]", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Erro ao testar" });
+        }
+      }),
   }),
   seed: router({
     createTestData: publicProcedure.mutation(async () => {

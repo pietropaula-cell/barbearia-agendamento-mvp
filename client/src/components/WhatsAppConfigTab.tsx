@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, MessageCircle } from "lucide-react";
+import { Loader2, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface WhatsAppConfigTabProps {
@@ -37,6 +37,13 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
       setPhoneNumber("");
       setApiKey("");
       setEnabled(false);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const testMut = trpc.whatsapp.testConnection.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
     },
     onError: (e) => toast.error(e.message),
   });
@@ -73,6 +80,14 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
     if (confirm("Tem certeza que deseja remover a configuração WhatsApp?")) {
       deleteMut.mutate({ barbershopId });
     }
+  };
+
+  const handleTestConnection = () => {
+    if (!phoneNumber || !apiKey) {
+      toast.error("Preencha número de telefone e API key para testar");
+      return;
+    }
+    testMut.mutate({ barbershopId, phoneNumber, apiKey });
   };
 
   if (isLoading) {
@@ -133,6 +148,16 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="bg-card border-border"
+              onClick={handleTestConnection}
+              disabled={testMut.isPending}
+            >
+              {testMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {!testMut.isPending && <Send className="w-4 h-4 mr-2" />}
+              Testar Conexão
+            </Button>
             <Button
               variant="outline"
               className="bg-card border-border flex-1"
@@ -247,15 +272,28 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
 
             <div className="flex gap-2 pt-6 border-t border-border mt-6">
               {config && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="bg-card border-border"
-                  onClick={() => setIsEditing(false)}
-                  disabled={upsertMut.isPending}
-                >
-                  Cancelar
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="bg-card border-border"
+                    onClick={() => setIsEditing(false)}
+                    disabled={upsertMut.isPending}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="bg-card border-border"
+                    onClick={handleTestConnection}
+                    disabled={testMut.isPending}
+                  >
+                    {testMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {!testMut.isPending && <Send className="w-4 h-4 mr-2" />}
+                    Testar
+                  </Button>
+                </>
               )}
               <Button
                 type="submit"
