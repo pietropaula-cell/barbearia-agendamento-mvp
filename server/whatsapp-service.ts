@@ -226,7 +226,9 @@ export async function sendWhatsappTemplateMessage(
 export async function sendWhatsappMessage(
   barbershopId: number,
   phoneNumber: string,
-  message: string
+  message: string,
+  contentSid?: string,
+  contentVariables?: Record<string, string>
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const config = await getWhatsappConfig(barbershopId);
@@ -250,9 +252,11 @@ export async function sendWhatsappMessage(
           accountSid: (config as any).twilioAccountSid,
           authToken: (config as any).twilioAuthToken,
           whatsappNumber: (config as any).twilioWhatsappNumber,
+          contentSid: contentSid,
+          contentVariables: contentVariables,
         } as any,
         phoneNumber,
-        message
+        contentSid ? undefined : message
       );
     } else {
       // Usar WhatsApp Business API
@@ -301,8 +305,39 @@ export async function sendConfirmationMessage(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const config = await getWhatsappConfig(barbershopId);
-    const customTemplate = config?.confirmationMessage || undefined;
+    const provider = (config as any).provider || "whatsapp_business";
+    const contentSid = (config as any).confirmationContentSid;
 
+    // Se for Twilio e tiver Content SID, usar template
+    if (provider === "twilio" && contentSid) {
+      const appointmentData = await getAppointmentData(
+        appointmentId,
+        barbershopId,
+        barberId,
+        serviceId,
+        customerName,
+        startsAt
+      );
+
+      // Preparar variáveis para o template (índices começam em 1)
+      const contentVariables = {
+        "1": appointmentData.cliente,
+        "2": appointmentData.barbearia,
+        "3": appointmentData.barbeiro,
+        "4": appointmentData.servico,
+        "5": appointmentData.data,
+        "6": appointmentData.hora,
+        "7": appointmentData.valor,
+        "8": appointmentData.endereco,
+        "9": appointmentData.linkMaps,
+        "10": appointmentData.linkCancelamento,
+      };
+
+      return sendWhatsappMessage(barbershopId, customerPhone, "", contentSid, contentVariables);
+    }
+
+    // Caso contrário, usar mensagem de texto livre
+    const customTemplate = config?.confirmationMessage || undefined;
     const message = await formatConfirmationMessage(
       appointmentId,
       barbershopId,
@@ -338,6 +373,36 @@ export async function sendReminderMessage(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const config = await getWhatsappConfig(barbershopId);
+    const provider = (config as any).provider || "whatsapp_business";
+    const contentSid = (config as any).reminderContentSid;
+
+    // Se for Twilio e tiver Content SID, usar template
+    if (provider === "twilio" && contentSid) {
+      const appointmentData = await getAppointmentData(
+        appointmentId,
+        barbershopId,
+        barberId,
+        serviceId,
+        customerName,
+        startsAt
+      );
+
+      // Preparar variáveis para o template (índices começam em 1)
+      const contentVariables = {
+        "1": appointmentData.cliente,
+        "2": appointmentData.barbearia,
+        "3": appointmentData.barbeiro,
+        "4": appointmentData.servico,
+        "5": appointmentData.data,
+        "6": appointmentData.hora,
+        "7": appointmentData.endereco,
+        "8": appointmentData.linkMaps,
+      };
+
+      return sendWhatsappMessage(barbershopId, customerPhone, "", contentSid, contentVariables);
+    }
+
+    // Caso contrário, usar mensagem de texto livre
     const customTemplate = config?.reminderMessage || undefined;
 
     const message = await formatReminderMessage(

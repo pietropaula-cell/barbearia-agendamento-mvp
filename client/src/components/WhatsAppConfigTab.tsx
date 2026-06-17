@@ -83,13 +83,16 @@ export function WhatsAppConfigTab() {
 
   useEffect(() => {
     if (config) {
-      setProvider((config as any).provider || "whatsapp_business");
+      const configProvider = (config as any).provider || "whatsapp_business";
+      setProvider(configProvider);
       setPhoneNumber(config.phoneNumber);
       setPhoneNumberId(config.phoneNumberId || "");
       setApiKey(config.apiKey || "");
       setTwilioAccountSid((config as any).twilioAccountSid || "");
       setTwilioAuthToken((config as any).twilioAuthToken || "");
       setTwilioWhatsappNumber((config as any).twilioWhatsappNumber || "");
+      setConfirmationContentSid((config as any).confirmationContentSid || "");
+      setReminderContentSid((config as any).reminderContentSid || "");
       setEnabled(config.enabled);
       setSendConfirmation(config.sendConfirmation);
       setSendReminder(config.sendReminder);
@@ -104,12 +107,7 @@ export function WhatsAppConfigTab() {
     }
   }, [templates]);
 
-  useEffect(() => {
-    if (config && provider === "twilio") {
-      setConfirmationContentSid((config as any).confirmationContentSid || "");
-      setReminderContentSid((config as any).reminderContentSid || "");
-    }
-  }, [config, provider]);
+
 
   const handleSave = () => {
     if (provider === "whatsapp_business") {
