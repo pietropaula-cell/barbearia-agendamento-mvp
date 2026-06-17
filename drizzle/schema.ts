@@ -132,7 +132,7 @@ export const whatsappConfigs = mysqlTable("whatsapp_configs", {
   provider: mysqlEnum("provider", ["whatsapp_business", "twilio"]).default("whatsapp_business").notNull(),
   phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
   phoneNumberId: varchar("phoneNumberId", { length: 100 }),
-  apiKey: varchar("apiKey", { length: 255 }).notNull(),
+  apiKey: varchar("apiKey", { length: 255 }),
   twilioAccountSid: varchar("twilioAccountSid", { length: 255 }),
   twilioAuthToken: varchar("twilioAuthToken", { length: 255 }),
   twilioWhatsappNumber: varchar("twilioWhatsappNumber", { length: 20 }),

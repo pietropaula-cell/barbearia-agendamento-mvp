@@ -1,0 +1,1 @@
+ALTER TABLE `whatsapp_configs` MODIFY COLUMN `apiKey` varchar(255);

@@ -84,7 +84,7 @@ export function WhatsAppConfigTab() {
       setProvider((config as any).provider || "whatsapp_business");
       setPhoneNumber(config.phoneNumber);
       setPhoneNumberId(config.phoneNumberId || "");
-      setApiKey(config.apiKey);
+      setApiKey(config.apiKey || "");
       setTwilioAccountSid((config as any).twilioAccountSid || "");
       setTwilioAuthToken((config as any).twilioAuthToken || "");
       setTwilioWhatsappNumber((config as any).twilioWhatsappNumber || "");
