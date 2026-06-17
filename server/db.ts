@@ -525,12 +525,17 @@ export async function getBarberSlotsOnDate(
 export async function getWhatsappConfig(barbershopId: number): Promise<WhatsappConfig | null> {
   const db = await getDb();
   if (!db) return null;
-  const result = await db
-    .select()
-    .from(whatsappConfigs)
-    .where(eq(whatsappConfigs.barbershopId, barbershopId))
-    .limit(1);
-  return result[0] || null;
+  try {
+    const result = await db
+      .select()
+      .from(whatsappConfigs)
+      .where(eq(whatsappConfigs.barbershopId, barbershopId))
+      .limit(1);
+    return result[0] || null;
+  } catch (error) {
+    console.warn("[WhatsApp Config] Error fetching config:", error);
+    return null;
+  }
 }
 
 export async function upsertWhatsappConfig(config: InsertWhatsappConfig & { barbershopId: number }): Promise<WhatsappConfig> {
