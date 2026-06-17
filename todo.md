@@ -173,8 +173,8 @@
 - [x] Opção de cancelar agendamento diretamente
 
 ## Botão BarberBook (Nova)
-- [ ] Tornar o logo "BarberBook" um botão para voltar à página inicial
-- [ ] Adicionar em todos os painéis (admin, owner, barber, cliente)
+- [x] Tornar o logo "BarberBook" um botão para voltar à página inicial
+- [x] Adicionar em todos os painéis (admin, owner, barber - cliente não tem painel)
 
 ## Cadastro de Barbeiro com Foto (Nova)
 - [ ] Adicionar campo de foto ao cadastro de barbeiro

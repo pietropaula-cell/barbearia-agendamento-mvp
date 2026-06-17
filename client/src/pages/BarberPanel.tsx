@@ -141,10 +141,10 @@ export default function BarberPanel() {
       {/* Sidebar */}
       <aside className="w-64 min-h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
         <div className="p-5 border-b border-sidebar-border">
-          <div className="flex items-center gap-2">
+          <button onClick={() => navigate("/")} className="w-full flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Scissors className="w-5 h-5 text-primary" />
             <span className="font-serif text-lg font-semibold text-sidebar-foreground">BarberBook</span>
-          </div>
+          </button>
           <Badge variant="outline" className="mt-2 border-primary/40 text-primary bg-primary/10 text-xs">
             Barbeiro
           </Badge>
