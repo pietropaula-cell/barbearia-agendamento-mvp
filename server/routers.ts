@@ -393,9 +393,8 @@ export const appRouter = router({
         if (!service) throw new TRPCError({ code: "NOT_FOUND", message: "Serviço não encontrado." });
         const [year, month, day] = input.date.split("-").map(Number);
         const [hour, minute] = input.time.split(":").map(Number);
-        // O cliente seleciona o horário em BRT (UTC-3).
-        // Adicionamos 3h para converter para UTC antes de salvar no banco.
-        const startsAt = new Date(Date.UTC(year, month - 1, day, hour + 3, minute));
+        // Usar o mesmo cálculo que getAvailableSlots para evitar divergência de timezone
+        const startsAt = new Date(Date.UTC(year, month - 1, day, hour, minute));
         const endsAt = new Date(startsAt.getTime() + Number(service.durationMin) * 60 * 1000);
         const conflict = await hasConflict(input.barberId, startsAt, endsAt);
         if (conflict) throw new TRPCError({ code: "CONFLICT", message: "Horário não disponível. Por favor, escolha outro horário." });
