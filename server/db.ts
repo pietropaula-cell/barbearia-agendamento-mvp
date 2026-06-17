@@ -565,3 +565,39 @@ export async function deleteWhatsappConfig(barbershopId: number): Promise<void> 
   if (!db) return;
   await db.delete(whatsappConfigs).where(eq(whatsappConfigs.barbershopId, barbershopId));
 }
+
+// ─── WhatsApp Message Templates ────────────────────────────────────────────────
+
+export async function getWhatsappMessageTemplates(barbershopId: number): Promise<{ confirmationMessage: string | null; reminderMessage: string | null } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const config = await db
+    .select({
+      confirmationMessage: whatsappConfigs.confirmationMessage,
+      reminderMessage: whatsappConfigs.reminderMessage,
+    })
+    .from(whatsappConfigs)
+    .where(eq(whatsappConfigs.barbershopId, barbershopId))
+    .limit(1);
+  
+  return config.length > 0 ? config[0] : null;
+}
+
+export async function updateWhatsappMessageTemplates(
+  barbershopId: number,
+  confirmationMessage: string,
+  reminderMessage: string
+): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(whatsappConfigs)
+    .set({
+      confirmationMessage,
+      reminderMessage,
+      updatedAt: new Date(),
+    })
+    .where(eq(whatsappConfigs.barbershopId, barbershopId));
+}

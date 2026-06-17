@@ -39,6 +39,8 @@ import {
   getWhatsappConfig,
   upsertWhatsappConfig,
   deleteWhatsappConfig,
+  getWhatsappMessageTemplates,
+  updateWhatsappMessageTemplates,
 } from "./db";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -522,6 +524,23 @@ export const appRouter = router({
           console.error("[WhatsApp Test Error]", error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Erro ao testar" });
         }
+      }),
+    getMessageTemplates: protectedProcedure
+      .query(async ({ ctx }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        return await getWhatsappMessageTemplates(0);
+      }),
+    updateMessageTemplates: protectedProcedure
+      .input(
+        z.object({
+          confirmationMessage: z.string().min(1),
+          reminderMessage: z.string().min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        await updateWhatsappMessageTemplates(0, input.confirmationMessage, input.reminderMessage);
+        return { success: true };
       }),
   }),
   seed: router({

@@ -1,1 +1,0 @@
-ALTER TABLE `barbershops` ADD `facadeUrl` varchar(255);

@@ -15,6 +15,20 @@
       "when": 1781716778983,
       "tag": "0001_modern_grim_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781725435266,
+      "tag": "0002_bizarre_king_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1781725501570,
+      "tag": "0003_complete_dark_phoenix",
+      "breakpoints": true
     }
   ]
 }
