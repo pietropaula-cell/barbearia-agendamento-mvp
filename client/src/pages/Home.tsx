@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import { getBarbershopStatus } from "@/lib/barbershopUtils";
 // import { getLoginUrl } from "@/const";
 import { Scissors, Calendar, Clock, Star, ChevronRight, MapPin, Navigation } from "lucide-react";
 import { Link } from "wouter";
@@ -138,9 +139,25 @@ export default function Home() {
                         <Scissors className="w-6 h-6 text-primary" />
                       )}
                     </div>
-                    <Badge variant="outline" className="border-green-500/40 text-green-400 bg-green-500/10 text-xs">
-                      Aberto
-                    </Badge>
+                    {(() => {
+                      const { status, label } = getBarbershopStatus(
+                        shop.openingTime || undefined,
+                        shop.closingTime || undefined,
+                        shop.active
+                      );
+                      return (
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${
+                            status === "open"
+                              ? "border-green-500/40 text-green-400 bg-green-500/10"
+                              : "border-red-500/40 text-red-400 bg-red-500/10"
+                          }`}
+                        >
+                          {label}
+                        </Badge>
+                      );
+                    })()}
                   </div>
                   <h3 className="font-serif font-semibold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
                     {shop.name}
