@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Scissors, Users, Plus, Pencil, Trash2, LogOut, Store, Loader2,
-  Calendar, Clock, DollarSign, Link as LinkIcon, ChevronLeft, ChevronRight, MessageCircle
+  Calendar, Clock, DollarSign, Link as LinkIcon, ChevronLeft, ChevronRight, MessageCircle, User
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -74,6 +74,12 @@ function OwnerSidebar({ active, onTabChange }: { active: string; onTabChange: (t
           <p className="text-xs text-sidebar-foreground font-medium truncate">{user?.name}</p>
           <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
         </div>
+        <button
+          onClick={() => navigate("/perfil")}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors mb-2"
+        >
+          <User className="w-4 h-4" /> Meu Perfil
+        </button>
         <button
           onClick={() => { logout(); navigate("/"); }}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
