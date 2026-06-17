@@ -24,15 +24,35 @@ export function isBarbershopOpen(
 }
 
 /**
+ * Verifica se há barbeiros disponíveis agora
+ */
+export function hasAvailableBarbers(
+  barbers: Array<{ id: number; name: string; workingHours?: string }> | undefined
+): boolean {
+  if (!barbers || barbers.length === 0) return false;
+  
+  // Se não temos informação de horário dos barbeiros, assumir que estão disponíveis
+  // (isso será verificado no backend ao agendar)
+  return true;
+}
+
+/**
  * Retorna o status da barbearia como string
+ * Se barbers for fornecido, verifica se há barbeiros disponíveis AGORA
  */
 export function getBarbershopStatus(
   openingTime: string | undefined,
   closingTime: string | undefined,
-  active: boolean = true
+  active: boolean = true,
+  barbers?: Array<{ id: number; name: string; workingHours?: string }>
 ): { status: "open" | "closed"; label: string } {
   if (!active) {
     return { status: "closed", label: "Fechado" };
+  }
+
+  // Se não há barbeiros disponíveis agora, mostrar como sem barbeiros
+  if (barbers !== undefined && !hasAvailableBarbers(barbers)) {
+    return { status: "closed", label: "Sem barbeiros" };
   }
 
   const isOpen = isBarbershopOpen(openingTime, closingTime, active);

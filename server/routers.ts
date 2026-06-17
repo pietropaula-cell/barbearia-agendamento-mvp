@@ -472,8 +472,7 @@ export const appRouter = router({
         const buffer = Buffer.from(input.base64, "base64");
         const { url } = await storagePut(`barbershops/${input.barbershopId}/facade.png`, buffer, "image/png");
         
-        // fachadaUrl será adicionado após migração do banco
-        // await updateBarbershop(input.barbershopId, { fachadaUrl: url });
+        await updateBarbershop(input.barbershopId, { fachadaUrl: url });
         return { url };
       }),
     updateAccentColor: protectedProcedure

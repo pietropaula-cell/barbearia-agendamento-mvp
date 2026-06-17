@@ -261,6 +261,14 @@ export default function Booking() {
         </div>
       </header>
       
+      {/* Facade Image */}
+      {barbershop.fachadaUrl && (
+        <div className="w-full h-48 bg-muted overflow-hidden relative">
+          <img src={barbershop.fachadaUrl} alt={barbershop.name} className="w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+        </div>
+      )}
+
       <div className="container max-w-lg mx-auto py-10 page-enter">
         <StepIndicator current={step} total={5} accentColor={accentColor} />
         <p className="text-center text-xs text-muted-foreground mb-6 uppercase tracking-widest">
