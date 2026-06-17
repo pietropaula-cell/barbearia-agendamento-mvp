@@ -544,25 +544,41 @@ export async function upsertWhatsappConfig(config: InsertWhatsappConfig & { barb
 
   const existing = await getWhatsappConfig(config.barbershopId);
   
-  if (existing) {
-    await db
-      .update(whatsappConfigs)
-      .set({
-        phoneNumber: config.phoneNumber,
-        apiKey: config.apiKey,
-        enabled: config.enabled,
-        sendConfirmation: config.sendConfirmation,
-        sendReminder: config.sendReminder,
-        reminderMinutesBefore: config.reminderMinutesBefore,
-        updatedAt: new Date(),
-      })
-      .where(eq(whatsappConfigs.barbershopId, config.barbershopId));
-    
-    return (await getWhatsappConfig(config.barbershopId))!;
-  } else {
-    await db.insert(whatsappConfigs).values(config);
-    return (await getWhatsappConfig(config.barbershopId))!;
+  try {
+    if (existing) {
+      await db
+        .update(whatsappConfigs)
+        .set({
+          phoneNumber: config.phoneNumber,
+          apiKey: config.apiKey,
+          enabled: config.enabled,
+          sendConfirmation: config.sendConfirmation,
+          sendReminder: config.sendReminder,
+          reminderMinutesBefore: config.reminderMinutesBefore,
+          updatedAt: new Date(),
+        })
+        .where(eq(whatsappConfigs.barbershopId, config.barbershopId));
+    } else {
+      await db.insert(whatsappConfigs).values(config);
+    }
+  } catch (error) {
+    console.warn("[WhatsApp Upsert] Error with full config, trying basic fields:", error);
+    // Tenta com apenas campos básicos
+    const basicConfig: any = {
+      barbershopId: config.barbershopId,
+      phoneNumber: config.phoneNumber,
+      apiKey: config.apiKey || "",
+      enabled: config.enabled,
+      sendConfirmation: config.sendConfirmation,
+      sendReminder: config.sendReminder,
+      reminderMinutesBefore: config.reminderMinutesBefore,
+    };
+    if (!existing) {
+      await db.insert(whatsappConfigs).values(basicConfig);
+    }
   }
+  
+  return (await getWhatsappConfig(config.barbershopId))!;
 }
 
 export async function deleteWhatsappConfig(barbershopId: number): Promise<void> {
