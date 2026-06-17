@@ -597,8 +597,10 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
                       <Badge variant="outline" className={`text-xs ${st.color}`}>{st.label}</Badge>
                     </div>
                     <p className="font-semibold text-foreground">{appt.customer?.name ?? "Cliente"}</p>
+                    <p className="text-muted-foreground text-sm">{appt.customer?.phone}</p>
                     <p className="text-muted-foreground text-sm">{appt.service?.name}</p>
-                    <div className="flex items-center gap-3 mt-1">
+                    <p className="text-muted-foreground text-xs mt-1">Barbeiro: {appt.barber?.name ?? "N/A"}</p>
+                    <div className="flex items-center gap-3 mt-2">
                       <span className="text-muted-foreground text-xs flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {formatDateBR(appt.startsAt)}
@@ -857,14 +859,16 @@ export default function OwnerPanel() {
                 <p className="text-muted-foreground text-sm">/{barbershop.slug}</p>
               </div>
             </div>
-            <Button
-              variant={barbershop.active ? "outline" : "default"}
-              onClick={() => toggleStatusMut.mutate({ id: barbershop.id })}
-              disabled={toggleStatusMut.isPending}
-            >
-              {toggleStatusMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {barbershop.active ? "Desativar" : "Ativar"}
-            </Button>
+            {user?.role === "admin" && (
+              <Button
+                variant={barbershop.active ? "outline" : "default"}
+                onClick={() => toggleStatusMut.mutate({ id: barbershop.id })}
+                disabled={toggleStatusMut.isPending}
+              >
+                {toggleStatusMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {barbershop.active ? "Desativar" : "Ativar"}
+              </Button>
+            )}
           </div>
         </div>
 

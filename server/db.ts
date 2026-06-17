@@ -327,20 +327,40 @@ export async function getAppointmentsByBarbershop(
   barbershopId: number,
   from?: Date,
   to?: Date
-): Promise<Appointment[]> {
+): Promise<any[]> {
   const db = await getDb();
   if (!db) return [];
   const conditions: any[] = [eq(appointments.barbershopId, barbershopId)];
   if (from) conditions.push(gte(appointments.startsAt, from));
   if (to) conditions.push(lte(appointments.startsAt, to));
-  return db.select().from(appointments).where(and(...conditions)).orderBy(appointments.startsAt);
+  return db
+    .select({
+      id: appointments.id,
+      barbershopId: appointments.barbershopId,
+      barberId: appointments.barberId,
+      serviceId: appointments.serviceId,
+      customerId: appointments.customerId,
+      startsAt: appointments.startsAt,
+      endsAt: appointments.endsAt,
+      status: appointments.status,
+      notes: appointments.notes,
+      customer: { id: customers.id, name: customers.name, phone: customers.phone },
+      service: { id: services.id, name: services.name, price: services.price, durationMin: services.durationMin },
+      barber: { id: barbers.id, name: barbers.name },
+    })
+    .from(appointments)
+    .innerJoin(customers, eq(appointments.customerId, customers.id))
+    .innerJoin(services, eq(appointments.serviceId, services.id))
+    .innerJoin(barbers, eq(appointments.barberId, barbers.id))
+    .where(and(...conditions))
+    .orderBy(appointments.startsAt);
 }
 
 export async function getAppointmentsByBarber(
   barberId: number,
   from?: Date,
   to?: Date
-): Promise<Appointment[]> {
+): Promise<any[]> {
   const db = await getDb();
   if (!db) return [];
   const conditions: any[] = [
@@ -349,7 +369,25 @@ export async function getAppointmentsByBarber(
   ];
   if (from) conditions.push(gte(appointments.startsAt, from));
   if (to) conditions.push(lte(appointments.startsAt, to));
-  return db.select().from(appointments).where(and(...conditions)).orderBy(appointments.startsAt);
+  return db
+    .select({
+      id: appointments.id,
+      barbershopId: appointments.barbershopId,
+      barberId: appointments.barberId,
+      serviceId: appointments.serviceId,
+      customerId: appointments.customerId,
+      startsAt: appointments.startsAt,
+      endsAt: appointments.endsAt,
+      status: appointments.status,
+      notes: appointments.notes,
+      customer: { id: customers.id, name: customers.name, phone: customers.phone },
+      service: { id: services.id, name: services.name, price: services.price, durationMin: services.durationMin },
+    })
+    .from(appointments)
+    .innerJoin(customers, eq(appointments.customerId, customers.id))
+    .innerJoin(services, eq(appointments.serviceId, services.id))
+    .where(and(...conditions))
+    .orderBy(appointments.startsAt);
 }
 
 export async function getAppointmentById(id: number): Promise<Appointment | undefined> {

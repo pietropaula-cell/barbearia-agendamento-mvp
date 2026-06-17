@@ -176,10 +176,10 @@ export const appRouter = router({
       return { success: true };
     }),
     toggleStatus: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
-      requireRole(ctx.user.role, ["admin", "owner"]);
+      // Apenas admin pode ativar/desativar barbearias
+      requireRole(ctx.user.role, ["admin"]);
       const barbershop = await getBarbershopById(input.id);
       if (!barbershop) throw new TRPCError({ code: "NOT_FOUND" });
-      requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.id);
       await updateBarbershop(input.id, { active: !barbershop.active });
       return { success: true };
     }),
