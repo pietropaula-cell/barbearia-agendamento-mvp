@@ -8,11 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
-interface WhatsAppConfigTabProps {
-  barbershopId: number;
-}
-
-export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
+export function WhatsAppConfigTab() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [enabled, setEnabled] = useState(false);
@@ -21,7 +17,7 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
   const [reminderMinutesBefore, setReminderMinutesBefore] = useState(60);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: config, isLoading } = trpc.whatsapp.getConfig.useQuery({ barbershopId });
+  const { data: config, isLoading } = trpc.whatsapp.getConfig.useQuery();
 
   const upsertMut = trpc.whatsapp.upsertConfig.useMutation({
     onSuccess: () => {
@@ -66,7 +62,6 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
       return;
     }
     upsertMut.mutate({
-      barbershopId,
       phoneNumber,
       apiKey,
       enabled,
@@ -78,7 +73,7 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
 
   const handleDelete = () => {
     if (confirm("Tem certeza que deseja remover a configuração WhatsApp?")) {
-      deleteMut.mutate({ barbershopId });
+      deleteMut.mutate(undefined);
     }
   };
 
@@ -87,7 +82,7 @@ export function WhatsAppConfigTab({ barbershopId }: WhatsAppConfigTabProps) {
       toast.error("Preencha número de telefone e API key para testar");
       return;
     }
-    testMut.mutate({ barbershopId, phoneNumber, apiKey });
+    testMut.mutate({ phoneNumber, apiKey });
   };
 
   if (isLoading) {

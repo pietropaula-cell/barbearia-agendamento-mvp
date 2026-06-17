@@ -124,9 +124,9 @@ export default function Home() {
               {barbershops.map((shop) => (
                 <div key={shop.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-200 group">
                   {shop.description && (shop.description.startsWith("/manus-storage") || shop.description.startsWith("http")) && (
-                    <div className="w-full h-48 bg-muted overflow-hidden relative">
-                      <img src={shop.description} alt={shop.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    <div className="w-full h-64 bg-muted overflow-hidden relative">
+                      <img src={shop.description} alt={shop.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                     </div>
                   )}
                   <div className="p-6">

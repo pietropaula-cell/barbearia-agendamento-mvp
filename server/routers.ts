@@ -465,15 +465,13 @@ export const appRouter = router({
   }),
   whatsapp: router({
     getConfig: protectedProcedure
-      .input(z.object({ barbershopId: z.number() }))
-      .query(async ({ ctx, input }) => {
+      .query(async ({ ctx }) => {
         requireRole(ctx.user.role, ["admin"]);
-        return await getWhatsappConfig(input.barbershopId);
+        return await getWhatsappConfig(0);
       }),
     upsertConfig: protectedProcedure
       .input(
         z.object({
-          barbershopId: z.number(),
           phoneNumber: z.string().min(1),
           apiKey: z.string().min(1),
           enabled: z.boolean(),
@@ -484,17 +482,16 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        return await upsertWhatsappConfig(input);
+        return await upsertWhatsappConfig({ ...input, barbershopId: 0 });
       }),
     deleteConfig: protectedProcedure
-      .input(z.object({ barbershopId: z.number() }))
-      .mutation(async ({ ctx, input }) => {
+      .mutation(async ({ ctx }) => {
         requireRole(ctx.user.role, ["admin"]);
-        await deleteWhatsappConfig(input.barbershopId);
+        await deleteWhatsappConfig(0);
         return { success: true };
       }),
     testConnection: protectedProcedure
-      .input(z.object({ barbershopId: z.number(), phoneNumber: z.string().min(1), apiKey: z.string().min(1) }))
+      .input(z.object({ phoneNumber: z.string().min(1), apiKey: z.string().min(1) }))
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
         try {
