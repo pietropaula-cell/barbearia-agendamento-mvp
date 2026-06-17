@@ -2,8 +2,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { getBarbershopStatus } from "@/lib/barbershopUtils";
-// import { getLoginUrl } from "@/const";
 import { Scissors, Calendar, Clock, Star, ChevronRight, MapPin, Navigation } from "lucide-react";
 import { Link } from "wouter";
 
@@ -107,17 +105,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Barbershops List ─────────────────────────────────────────────────── */}
-      <section id="barbearias" className="py-20 bg-card/30">
+      {/* ── Barbearias ──────────────────────────────────────────────────────── */}
+      <section id="barbearias" className="py-20 border-t border-border/50">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-3 text-foreground">Barbearias Disponíveis</h2>
-            <p className="text-muted-foreground">Escolha uma barbearia e agende seu horário agora mesmo.</p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-foreground">Nossas Barbearias</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Escolha a barbearia mais próxima e agende seu horário</p>
           </div>
 
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
+              {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-card border border-border rounded-xl p-6 animate-pulse">
                   <div className="h-5 bg-muted rounded w-2/3 mb-3" />
                   <div className="h-4 bg-muted rounded w-full mb-2" />
@@ -129,66 +127,57 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {barbershops.map((shop) => (
                 <div key={shop.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-200 group">
-                  {shop.fachadaUrl && (
-                    <div className="w-full h-64 bg-muted overflow-hidden relative">
-                      <img src={shop.fachadaUrl} alt={shop.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                    </div>
-                  )}
                   <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center overflow-hidden shrink-0">
-                      {shop.logoUrl ? (
-                        <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover rounded-xl" />
-                      ) : (
-                        <Scissors className="w-6 h-6 text-primary" />
-                      )}
+                    {/* Logo e Nome */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center overflow-hidden shrink-0">
+                        {shop.logoUrl ? (
+                          <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover rounded-xl" />
+                        ) : (
+                          <Scissors className="w-6 h-6 text-primary" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-serif font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
+                          {shop.name}
+                        </h3>
+                      </div>
                     </div>
-                    {(() => {
-                      const { status, label } = getBarbershopStatus(
-                        shop.openingTime || undefined,
-                        shop.closingTime || undefined,
-                        shop.active
-                      );
-                      return (
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${
-                            status === "open"
-                              ? "border-green-500/40 text-green-400 bg-green-500/10"
-                              : "border-red-500/40 text-red-400 bg-red-500/10"
-                          }`}
-                        >
-                          {label}
-                        </Badge>
-                      );
-                    })()}
-                  </div>
-                  <div className="p-6">
-                  <h3 className="font-serif font-semibold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
-                    {shop.name}
-                  </h3>
-                  {shop.address && (
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="text-muted-foreground text-sm flex items-center gap-1.5 flex-1">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {shop.address}
-                      </p>
-                      <button
-                        onClick={() => shop.address && window.open(`https://www.google.com/maps/search/${encodeURIComponent(shop.address)}`, "_blank")}
-                        className="ml-2 p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex-shrink-0"
-                        title="Abrir no Google Maps"
-                      >
-                        <Navigation className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
 
-                  <Link href={`/agendar/${shop.slug}`}>
-                    <Button className="w-full mt-4 gap-2" size="sm">
-                      <Calendar className="w-4 h-4" /> Agendar Agora
-                    </Button>
-                  </Link>
-                  </div>
+                    {/* Endereço */}
+                    {shop.address && (
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-muted-foreground text-sm flex items-center gap-1.5 flex-1">
+                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {shop.address}
+                        </p>
+                        <button
+                          onClick={() => shop.address && window.open(`https://www.google.com/maps/search/${encodeURIComponent(shop.address)}`, "_blank")}
+                          className="ml-2 p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex-shrink-0"
+                          title="Abrir no Google Maps"
+                        >
+                          <Navigation className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Horário de Trabalho */}
+                    {(shop.openingTime || shop.closingTime) && (
+                      <div className="mb-4 p-3 bg-primary/5 rounded-lg">
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <span>
+                            {shop.openingTime} - {shop.closingTime}
+                          </span>
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Botão Agendar */}
+                    <Link href={`/agendar/${shop.slug}`}>
+                      <Button className="w-full gap-2" size="sm">
+                        <Calendar className="w-4 h-4" /> Agendar Agora
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -209,18 +198,11 @@ export default function Home() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-border/50 py-10">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Scissors className="w-4 h-4 text-primary" />
-            <span className="font-serif text-foreground font-medium">BarberBook</span>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            Sistema de agendamento para barbearias
-          </p>
+      <footer className="border-t border-border/50 py-12 bg-card/30">
+        <div className="container text-center text-muted-foreground text-sm">
+          <p>© 2026 BarberBook. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>
   );
 }
-// Deploy trigger 1781648516

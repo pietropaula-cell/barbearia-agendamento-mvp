@@ -475,6 +475,8 @@ export const appRouter = router({
         await updateBarbershop(input.barbershopId, { fachadaUrl: url });
         return { url };
       }),
+
+Encontrar:
     updateAccentColor: protectedProcedure
       .input(z.object({ barbershopId: z.number(), accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/) }))
       .mutation(async ({ ctx, input }) => {
@@ -486,6 +488,38 @@ export const appRouter = router({
         await updateBarbershop(input.barbershopId, { accentColor: input.accentColor });
         return { success: true };
       }),
+
+Substituir por:
+    updateAccentColor: protectedProcedure
+      .input(z.object({ 
+        barbershopId: z.number(), 
+        accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+        openingTime: z.string().optional(),
+        closingTime: z.string().optional()
+      }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin", "owner"]);
+        const shop = await getBarbershopById(input.barbershopId);
+        if (!shop) throw new TRPCError({ code: "NOT_FOUND" });
+        requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
+        
+        const updateData: any = { accentColor: input.accentColor };
+        if (input.openingTime) updateData.openingTime = input.openingTime;
+        if (input.closingTime) updateData.closingTime = input.closingTime;
+        
+        await updateBarbershop(input.barbershopId, updateData);
+        return { success: true };
+      }),
+
+
+
+
+
+
+
+
+
+
   }),
   whatsapp: router({
     getConfig: protectedProcedure
