@@ -136,7 +136,7 @@ export default function Home() {
                     </div>
                   )}
                   <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-start mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center overflow-hidden shrink-0">
                       {shop.logoUrl ? (
                         <img src={shop.logoUrl} alt={shop.name} className="w-full h-full object-cover rounded-xl" />
@@ -144,25 +144,6 @@ export default function Home() {
                         <Scissors className="w-6 h-6 text-primary" />
                       )}
                     </div>
-                    {(() => {
-                      const { status, label } = getBarbershopStatus(
-                        shop.openingTime || undefined,
-                        shop.closingTime || undefined,
-                        shop.active
-                      );
-                      return (
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${
-                            status === "open"
-                              ? "border-green-500/40 text-green-400 bg-green-500/10"
-                              : "border-red-500/40 text-red-400 bg-red-500/10"
-                          }`}
-                        >
-                          {label}
-                        </Badge>
-                      );
-                    })()}
                   </div>
                   <div className="p-6">
                   <h3 className="font-serif font-semibold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
