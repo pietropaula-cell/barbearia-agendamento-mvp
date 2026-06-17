@@ -9,6 +9,7 @@ import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatBR, formatDateLongBR } from "@/lib/dateUtils";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -183,7 +184,7 @@ export default function Booking() {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Data e Hora</span>
               <span className="font-medium text-foreground">
-                {format(new Date(confirmedAppointment.startsAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                {formatBR(confirmedAppointment.startsAt, "dd/MM/yyyy 'às' HH:mm")}
               </span>
             </div>
             <div className="flex justify-between text-sm">

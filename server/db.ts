@@ -138,6 +138,19 @@ export async function deleteUser(userId: number): Promise<void> {
   await db.delete(users).where(eq(users.id, userId));
 }
 
+export async function getUserById(userId: number): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result[0];
+}
+
+export async function updateUserPassword(userId: number, newPasswordHash: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, userId));
+}
+
 export async function updateUserRole(
   userId: number,
   role: User["role"],
@@ -379,6 +392,61 @@ export async function hasConflict(
   if (excludeId) conditions.push(ne(appointments.id, excludeId));
   const result = await db.select().from(appointments).where(and(...conditions)).limit(1);
   return result.length > 0;
+}
+
+export async function getAppointmentsByPhone(
+  phone: string
+): Promise<Array<{
+  id: number;
+  startsAt: Date;
+  endsAt: Date;
+  status: string;
+  barbershopName: string;
+  barberName: string;
+  serviceName: string;
+  servicePrice: string;
+  customerName: string;
+}>> {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Buscar o customer pelo telefone
+  const customerRows = await db.select().from(customers).where(eq(customers.phone, phone)).limit(1);
+  if (!customerRows[0]) return [];
+  const customerId = customerRows[0].id;
+
+  // Buscar agendamentos do customer com joins
+  const rows = await db
+    .select({
+      id: appointments.id,
+      startsAt: appointments.startsAt,
+      endsAt: appointments.endsAt,
+      status: appointments.status,
+      barbershopName: barbershops.name,
+      barberName: barbers.name,
+      serviceName: services.name,
+      servicePrice: services.price,
+      customerName: customers.name,
+    })
+    .from(appointments)
+    .leftJoin(barbershops, eq(appointments.barbershopId, barbershops.id))
+    .leftJoin(barbers, eq(appointments.barberId, barbers.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
+    .leftJoin(customers, eq(appointments.customerId, customers.id))
+    .where(eq(appointments.customerId, customerId))
+    .orderBy(appointments.startsAt);
+
+  return rows.map((r) => ({
+    id: r.id,
+    startsAt: r.startsAt,
+    endsAt: r.endsAt,
+    status: r.status,
+    barbershopName: r.barbershopName ?? "",
+    barberName: r.barberName ?? "",
+    serviceName: r.serviceName ?? "",
+    servicePrice: r.servicePrice ?? "0",
+    customerName: r.customerName ?? "",
+  }));
 }
 
 export async function getBarberSlotsOnDate(

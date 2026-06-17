@@ -12,10 +12,12 @@ import {
   Calendar, Clock, DollarSign, Link as LinkIcon
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { format } from "date-fns";
+import { formatBR, formatTimeBR, formatDateBR } from "@/lib/dateUtils";
 import { ptBR } from "date-fns/locale";
 
 const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -90,20 +92,51 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [bio, setBio] = useState(initial?.bio ?? "");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const utils = trpc.useUtils();
 
-  const createMut = trpc.barbers.create.useMutation({
-    onSuccess: () => { toast.success("Barbeiro criado!"); utils.barbers.list.invalidate(); onSuccess(); },
+  const createMut = trpc.barbers.createWithAccount.useMutation({
+    onSuccess: (data) => {
+      // Se há arquivo de avatar, fazer upload após criar
+      if (avatarFile && data.barberId) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const base64 = (ev.target?.result as string).split(",")[1];
+          uploadMut.mutate({ barberId: data.barberId!, base64 });
+        };
+        reader.readAsDataURL(avatarFile);
+      } else {
+        toast.success("Barbeiro criado!");
+        utils.barbers.list.invalidate();
+        onSuccess();
+      }
+    },
     onError: (e) => toast.error(e.message),
   });
   const updateMut = trpc.barbers.update.useMutation({
-    onSuccess: () => { toast.success("Barbeiro atualizado!"); utils.barbers.list.invalidate(); onSuccess(); },
+    onSuccess: async (_, vars) => {
+      // Se há arquivo de avatar, fazer upload após atualizar
+      if (avatarFile && initial) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const base64 = (ev.target?.result as string).split(",")[1];
+          uploadMut.mutate({ barberId: initial.id, base64 });
+        };
+        reader.readAsDataURL(avatarFile);
+      } else {
+        toast.success("Barbeiro atualizado!");
+        utils.barbers.list.invalidate();
+        onSuccess();
+      }
+    },
     onError: (e) => toast.error(e.message),
   });
   const uploadMut = trpc.barbers.uploadAvatar.useMutation({
-    onSuccess: () => { toast.success("Foto atualizada!"); setAvatarFile(null); },
+    onSuccess: () => { toast.success("Barbeiro atualizado!"); utils.barbers.list.invalidate(); onSuccess(); setAvatarFile(null); },
     onError: (e) => toast.error(e.message),
   });
 
@@ -122,7 +155,11 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
     if (initial) {
       updateMut.mutate({ id: initial.id, name, bio: bio || undefined });
     } else {
-      createMut.mutate({ barbershopId, name, bio: bio || undefined });
+      if (!email) { toast.error("E-mail é obrigatório"); return; }
+      if (!password) { toast.error("Senha é obrigatória"); return; }
+      if (password !== confirmPassword) { toast.error("As senhas não coincidem"); return; }
+      if (password.length < 6) { toast.error("Senha deve ter mínimo 6 caracteres"); return; }
+      createMut.mutate({ barbershopId, name, bio: bio || undefined, email, password });
     }
   };
 
@@ -136,31 +173,34 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
         <Label className="text-foreground mb-1.5 block">Bio</Label>
         <Input value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Especialidades, experiência..." className="bg-background border-border" />
       </div>
+      {!initial && (
+        <>
+          <div className="border-t border-border pt-4">
+            <p className="text-sm text-muted-foreground mb-3">Credenciais de acesso do barbeiro</p>
+          </div>
+          <div>
+            <Label className="text-foreground mb-1.5 block">E-mail *</Label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="barbeiro@email.com" className="bg-background border-border" />
+          </div>
+          <div>
+            <Label className="text-foreground mb-1.5 block">Senha *</Label>
+            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" className="bg-background border-border" />
+          </div>
+          <div>
+            <Label className="text-foreground mb-1.5 block">Confirmar Senha *</Label>
+            <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repita a senha" className="bg-background border-border" />
+          </div>
+        </>
+      )}
       <div>
         <Label className="text-foreground mb-1.5 block">Foto</Label>
-        <div className="flex gap-3 items-end">
-          <div className="flex-1">
-            <Input type="file" accept="image/*" onChange={handleAvatarChange} className="bg-background border-border" />
-          </div>
-          {avatarFile && initial && (
-            <Button type="button" size="sm" onClick={() => {
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                const base64 = (ev.target?.result as string).split(",")[1];
-                uploadMut.mutate({ barberId: initial.id, base64 });
-              };
-              reader.readAsDataURL(avatarFile);
-            }} disabled={uploadMut.isPending}>
-              {uploadMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload"}
-            </Button>
-          )}
-        </div>
+        <Input type="file" accept="image/*" onChange={handleAvatarChange} className="bg-background border-border" />
         {avatarPreview && <img src={avatarPreview} alt="Preview" className="w-16 h-16 rounded-full object-cover mt-2" />}
       </div>
       <div className="flex gap-3 pt-2">
         <Button type="button" variant="outline" className="bg-card border-border" onClick={onCancel}>Cancelar</Button>
-        <Button type="submit" className="flex-1" disabled={createMut.isPending || updateMut.isPending}>
-          {(createMut.isPending || updateMut.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        <Button type="submit" className="flex-1" disabled={createMut.isPending || updateMut.isPending || uploadMut.isPending}>
+          {(createMut.isPending || updateMut.isPending || uploadMut.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
           {initial ? "Salvar" : "Criar Barbeiro"}
         </Button>
       </div>
@@ -210,47 +250,54 @@ function ScheduleForm({ barberId, onSuccess, onCancel }: {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-2">
       {Array.from({ length: 7 }, (_, i) => i).map((day) => (
-        <div key={day} className="flex items-center gap-3">
-          <Checkbox
-            id={`day-${day}`}
-            checked={schedules[day]?.enabled ?? false}
-            onCheckedChange={(checked) =>
-              setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], enabled: !!checked } }))
-            }
-          />
-          <Label htmlFor={`day-${day}`} className="w-10 text-foreground text-sm">{DAY_NAMES[day]}</Label>
+        <div key={day} className="rounded-lg border border-border/50 p-3 space-y-2">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id={`day-${day}`}
+              checked={schedules[day]?.enabled ?? false}
+              onCheckedChange={(checked) =>
+                setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], enabled: !!checked } }))
+              }
+            />
+            <Label htmlFor={`day-${day}`} className="text-foreground text-sm font-medium cursor-pointer">{DAY_NAMES[day]}</Label>
+          </div>
           {schedules[day]?.enabled && (
-            <>
-              <Input
-                type="time"
-                value={schedules[day].start}
-                onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], start: e.target.value } }))}
-                className="bg-background border-border w-32 text-sm"
-              />
-              <span className="text-muted-foreground text-sm">até</span>
-              <Input
-                type="time"
-                value={schedules[day].end}
-                onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], end: e.target.value } }))}
-                className="bg-background border-border w-32 text-sm"
-              />
-              <span className="text-muted-foreground text-sm text-xs">Intervalo:</span>
-              <Input
-                type="time"
-                value={schedules[day].breakStart || "12:00"}
-                onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], breakStart: e.target.value } }))}
-                className="bg-background border-border w-32 text-sm"
-              />
-              <span className="text-muted-foreground text-sm">até</span>
-              <Input
-                type="time"
-                value={schedules[day].breakEnd || "13:00"}
-                onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], breakEnd: e.target.value } }))}
-                className="bg-background border-border w-32 text-sm"
-              />
-            </>
+            <div className="pl-7 space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-muted-foreground text-xs w-16">Expediente:</span>
+                <Input
+                  type="time"
+                  value={schedules[day].start}
+                  onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], start: e.target.value } }))}
+                  className="bg-background border-border w-28 text-sm h-8"
+                />
+                <span className="text-muted-foreground text-xs">até</span>
+                <Input
+                  type="time"
+                  value={schedules[day].end}
+                  onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], end: e.target.value } }))}
+                  className="bg-background border-border w-28 text-sm h-8"
+                />
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-muted-foreground text-xs w-16">Intervalo:</span>
+                <Input
+                  type="time"
+                  value={schedules[day].breakStart || "12:00"}
+                  onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], breakStart: e.target.value } }))}
+                  className="bg-background border-border w-28 text-sm h-8"
+                />
+                <span className="text-muted-foreground text-xs">até</span>
+                <Input
+                  type="time"
+                  value={schedules[day].breakEnd || "13:00"}
+                  onChange={(e) => setSchedules((prev) => ({ ...prev, [day]: { ...prev[day], breakEnd: e.target.value } }))}
+                  className="bg-background border-border w-28 text-sm h-8"
+                />
+              </div>
+            </div>
           )}
         </div>
       ))}
@@ -378,7 +425,7 @@ function BarbersTab({ barbershopId }: { barbershopId: number }) {
                       <Clock className="w-3 h-3" /> Horários
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-card border-border max-w-lg">
+                  <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader><DialogTitle className="font-serif text-foreground">Horários — {barber.name}</DialogTitle></DialogHeader>
                     {scheduleTarget && (
                       <ScheduleForm barberId={scheduleTarget.id} onSuccess={() => setScheduleTarget(null)} onCancel={() => setScheduleTarget(null)} />
@@ -554,11 +601,11 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-muted-foreground text-xs flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {format(new Date(appt.startsAt), "dd/MM/yyyy", { locale: ptBR })}
+                        {formatDateBR(appt.startsAt)}
                       </span>
                       <span className="text-muted-foreground text-xs flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {format(new Date(appt.startsAt), "HH:mm", { locale: ptBR })}
+                        {formatTimeBR(appt.startsAt)}
                       </span>
                       <span className="text-primary text-xs font-semibold">
                         R$ {Number(appt.service?.price ?? 0).toFixed(2)}

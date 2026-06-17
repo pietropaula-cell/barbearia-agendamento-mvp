@@ -183,3 +183,15 @@
 - [ ] Barbeiro conseguir confirmar agendamentos
 - [ ] Barbeiro conseguir cancelar agendamentos
 - [ ] Exibir foto do barbeiro na seleção durante agendamento
+
+## Correções e Novas Funcionalidades (Jun 2026 - Rodada 2)
+- [ ] Corrigir modal de horários do barbeiro (quebrada)
+- [ ] Barrar horário de intervalo na hora do agendamento (slots de intervalo não devem aparecer)
+- [ ] Corrigir upload de foto do barbeiro (não está salvando/exibindo após seleção)
+- [ ] Remover texto do caminho .png na listagem de barbearias
+- [ ] Exibir logo da barbearia corretamente na listagem
+- [ ] Corrigir timezone -3h nos horários exibidos para cliente, dono e barbeiro
+- [ ] Adicionar campos de login e senha no modal de criar/editar barbeiro
+- [ ] Adicionar tela de troca de senha para o usuário logado (senha atual, nova senha, confirmação)
+- [ ] Adicionar ícone "olhinho" para mostrar/ocultar senha em todos os campos de senha
+- [ ] Adicionar aba de pesquisa de agendamentos por telefone para o cliente (sem filtro = sem dados)

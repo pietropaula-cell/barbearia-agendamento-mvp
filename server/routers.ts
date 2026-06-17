@@ -17,6 +17,7 @@ import {
   getAppointmentById,
   getAppointmentsByBarber,
   getAppointmentsByBarbershop,
+  getAppointmentsByPhone,
   getBarberById,
   getBarberSlotsOnDate,
   getBarbersByBarbershop,
@@ -32,6 +33,8 @@ import {
   updateBarbershop,
   updateService,
   updateUserRole,
+  updateUserPassword,
+  getUserById,
   upsertCustomer,
 } from "./db";
 import { COOKIE_NAME } from "@shared/const";
@@ -73,7 +76,25 @@ async function getAvailableSlots(
   const [endH, endM] = schedule.endTime.split(":").map(Number);
   const workStart = startH * 60 + startM;
   const workEnd = endH * 60 + endM;
+
+  // Calcular intervalo (break) se existir
+  let breakStart = -1;
+  let breakEnd = -1;
+  if (schedule.breakStartTime && schedule.breakEndTime) {
+    const [bsH, bsM] = schedule.breakStartTime.split(":").map(Number);
+    const [beH, beM] = schedule.breakEndTime.split(":").map(Number);
+    breakStart = bsH * 60 + bsM;
+    breakEnd = beH * 60 + beM;
+  }
+
   for (let t = workStart; t + durationMin <= workEnd; t += durationMin) {
+    // Verificar se o slot conflita com o intervalo
+    if (breakStart >= 0 && breakEnd > breakStart) {
+      const slotEndMin = t + durationMin;
+      // Slot conflita com intervalo se começa antes do fim do intervalo e termina depois do início
+      if (t < breakEnd && slotEndMin > breakStart) continue;
+    }
+
     const slotStart = new Date(Date.UTC(year, month - 1, day, Math.floor(t / 60), t % 60));
     const slotEnd = new Date(slotStart.getTime() + durationMin * 60 * 1000);
     const conflict = bookedSlots.some(
@@ -176,6 +197,37 @@ export const appRouter = router({
         requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
         const id = await createBarber(input);
         return { id };
+      }),
+    createWithAccount: protectedProcedure
+      .input(z.object({
+        barbershopId: z.number(),
+        name: z.string().min(2),
+        bio: z.string().optional(),
+        email: z.string().email(),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin", "owner"]);
+        requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
+        // Criar usuário com role barber e barbershopId
+        const user = await createUser(input.name, input.email, input.password, "barber", input.barbershopId);
+        // O createUser já cria automaticamente o registro em barbers quando role === "barber"
+        // Mas precisamos atualizar o bio se fornecido e buscar o barberId
+        const { getDb } = await import("./db");
+        const { barbers: barbersTable } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        let barberId: number | null = null;
+        if (db) {
+          const barberRow = await db.select().from(barbersTable).where(eq(barbersTable.userId, user.id)).limit(1);
+          if (barberRow[0]) {
+            barberId = barberRow[0].id;
+            if (input.bio) {
+              await db.update(barbersTable).set({ bio: input.bio }).where(eq(barbersTable.id, barberId));
+            }
+          }
+        }
+        return { success: true, userId: user.id, barberId };
       }),
     update: protectedProcedure
       .input(z.object({ id: z.number(), name: z.string().min(2).optional(), bio: z.string().optional(), avatarUrl: z.string().optional(), active: z.boolean().optional() }))
@@ -333,9 +385,9 @@ export const appRouter = router({
         if (!service) throw new TRPCError({ code: "NOT_FOUND", message: "Serviço não encontrado." });
         const [year, month, day] = input.date.split("-").map(Number);
         const [hour, minute] = input.time.split(":").map(Number);
-        // Criar data em timezone local e converter para UTC
-        const localDate = new Date(year, month - 1, day, hour, minute);
-        const startsAt = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000);
+        // O cliente seleciona o horário em BRT (UTC-3).
+        // Adicionamos 3h para converter para UTC antes de salvar no banco.
+        const startsAt = new Date(Date.UTC(year, month - 1, day, hour + 3, minute));
         const endsAt = new Date(startsAt.getTime() + Number(service.durationMin) * 60 * 1000);
         const conflict = await hasConflict(input.barberId, startsAt, endsAt);
         if (conflict) throw new TRPCError({ code: "CONFLICT", message: "Horário não disponível. Por favor, escolha outro horário." });
@@ -351,6 +403,11 @@ export const appRouter = router({
       await updateAppointmentStatus(input.id, "cancelled");
       return { success: true };
     }),
+    searchByPhone: publicProcedure
+      .input(z.object({ phone: z.string().min(8) }))
+      .query(async ({ input }) => {
+        return getAppointmentsByPhone(input.phone);
+      }),
     getAllBarbershops: publicProcedure.query(async () => {
       const all = await getAllBarbershops();
       return all.filter((b) => b.active);

@@ -10,8 +10,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatDateBR, formatTimeBR } from "@/lib/dateUtils";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendente", color: "border-yellow-500/40 text-yellow-400 bg-yellow-500/10" },
@@ -61,11 +60,13 @@ export default function BarberPanel() {
   const handleBlock = (e: React.FormEvent) => {
     e.preventDefault();
     if (!myBarber || !barbershopId) return;
+    // Interpreta os valores do input como horário local de Brasília (UTC-3)
+    // Adicionando 3h para converter para UTC antes de enviar ao servidor
     const [year, month, day] = blockDate.split("-").map(Number);
     const [sh, sm] = blockStart.split(":").map(Number);
     const [eh, em] = blockEnd.split(":").map(Number);
-    const startsAt = new Date(Date.UTC(year, month - 1, day, sh, sm));
-    const endsAt = new Date(Date.UTC(year, month - 1, day, eh, em));
+    const startsAt = new Date(Date.UTC(year, month - 1, day, sh + 3, sm));
+    const endsAt = new Date(Date.UTC(year, month - 1, day, eh + 3, em));
     if (endsAt <= startsAt) { toast.error("Horário de fim deve ser após o início."); return; }
     blockMut.mutate({ barberId: myBarber.id, barbershopId, startsAt, endsAt, notes: blockNote || undefined });
   };
@@ -119,6 +120,12 @@ export default function BarberPanel() {
             <p className="text-xs text-sidebar-foreground font-medium truncate">{user?.name}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
+          <button
+            onClick={() => navigate("/perfil")}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors mb-1"
+          >
+            <Scissors className="w-4 h-4" /> Meu Perfil
+          </button>
           <button
             onClick={() => { logout(); navigate("/"); }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
@@ -206,11 +213,11 @@ export default function BarberPanel() {
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-muted-foreground text-xs flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {format(new Date(appt.startsAt), "dd/MM/yyyy", { locale: ptBR })}
+                          {formatDateBR(appt.startsAt)}
                         </span>
                         <span className="text-muted-foreground text-xs flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {format(new Date(appt.startsAt), "HH:mm", { locale: ptBR })} — {format(new Date(appt.endsAt), "HH:mm", { locale: ptBR })}
+                          {formatTimeBR(appt.startsAt)} — {formatTimeBR(appt.endsAt)}
                         </span>
                         {appt.service && (
                           <span className="text-primary text-xs font-semibold">
