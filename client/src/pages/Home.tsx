@@ -129,13 +129,6 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {barbershops.map((shop) => (
                 <div key={shop.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-200 group">
-                  {shop.fachadaUrl && (
-                    <div className="w-full h-64 bg-muted overflow-hidden relative">
-                      <img src={shop.fachadaUrl} alt={shop.name} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                    </div>
-                  )}
-                  <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center overflow-hidden shrink-0">
                       {shop.logoUrl ? (
@@ -164,6 +157,7 @@ export default function Home() {
                       );
                     })()}
                   </div>
+                  <div className="p-6">
                   <h3 className="font-serif font-semibold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
                     {shop.name}
                   </h3>
