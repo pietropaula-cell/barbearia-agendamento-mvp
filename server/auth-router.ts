@@ -153,4 +153,42 @@ export const authRouter = router({
         });
       }
     }),
+  resetPassword: protectedProcedure
+    .input(z.object({ userId: z.number(), newPassword: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (ctx.user?.role !== "admin") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Apenas administradores podem resetar senhas",
+          });
+        }
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Banco de dados indisponivel",
+          });
+        }
+        const userResult = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
+        if (!userResult.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Usuario nao encontrado",
+          });
+        }
+        const newPasswordHash = await hashPassword(input.newPassword);
+        await db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, input.userId));
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        console.error("[Auth] Reset password error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao resetar senha",
+        });
+      }
+    }),
 });

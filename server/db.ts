@@ -244,7 +244,14 @@ export async function updateBarber(id: number, data: Partial<InsertBarber>): Pro
 export async function deleteBarber(id: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
-  await db.update(barbers).set({ active: false }).where(eq(barbers.id, id));
+  // Buscar o barbeiro para obter o userId
+  const barber = await getBarberById(id);
+  if (barber && barber.userId) {
+    // Deletar o usuário associado (isso vai sincronizar em ambas as páginas)
+    await deleteUser(barber.userId);
+  }
+  // Deletar o barbeiro
+  await db.delete(barbers).where(eq(barbers.id, id));
 }
 
 // ─── Barber Schedules ─────────────────────────────────────────────────────────

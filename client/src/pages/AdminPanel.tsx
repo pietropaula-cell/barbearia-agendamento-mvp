@@ -341,6 +341,9 @@ function UsersTab() {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [newRole, setNewRole] = useState("");
   const [newBarbershopId, setNewBarbershopId] = useState<string>("");
+  const [resetPasswordUser, setResetPasswordUser] = useState<any>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const updateRoleMut = trpc.adminUsers.updateRole.useMutation({
     onSuccess: () => { toast.success("Permissão atualizada!"); utils.adminUsers.list.invalidate(); setEditingUser(null); },
@@ -349,6 +352,11 @@ function UsersTab() {
 
   const deleteUserMut = trpc.adminUsers.delete.useMutation({
     onSuccess: () => { toast.success("Usuário deletado!"); utils.adminUsers.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const resetPasswordMut = trpc.auth.resetPassword.useMutation({
+    onSuccess: () => { toast.success("Senha resetada com sucesso!"); setResetPasswordUser(null); setNewPassword(""); setConfirmPassword(""); },
     onError: (e) => toast.error(e.message),
   });
 
@@ -397,6 +405,49 @@ function UsersTab() {
                 <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/10">
                   {ROLE_LABELS[u.role] ?? u.role}
                 </Badge>
+                <Dialog open={resetPasswordUser?.id === u.id} onOpenChange={(o) => { if (!o) setResetPasswordUser(null); }}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-card border-border text-xs"
+                      onClick={() => { setResetPasswordUser(u); setNewPassword(""); setConfirmPassword(""); }}
+                    >
+                      Resetar Senha
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-card border-border">
+                    <DialogHeader>
+                      <DialogTitle className="font-serif text-foreground">Resetar Senha</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-2">
+                      <div>
+                        <Label className="text-foreground mb-1.5 block">Usuário</Label>
+                        <p className="text-muted-foreground text-sm">{resetPasswordUser?.name} — {resetPasswordUser?.email}</p>
+                      </div>
+                      <div>
+                        <Label className="text-foreground mb-1.5 block">Nova Senha *</Label>
+                        <PasswordInput value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" className="bg-background border-border" />
+                      </div>
+                      <div>
+                        <Label className="text-foreground mb-1.5 block">Confirmar Senha *</Label>
+                        <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repita a senha" className="bg-background border-border" />
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <Button variant="outline" className="bg-card border-border" onClick={() => setResetPasswordUser(null)}>Cancelar</Button>
+                        <Button className="flex-1" disabled={resetPasswordMut.isPending} onClick={() => {
+                          if (!newPassword || !confirmPassword) { toast.error("Preencha todos os campos"); return; }
+                          if (newPassword !== confirmPassword) { toast.error("As senhas não coincidem"); return; }
+                          if (newPassword.length < 6) { toast.error("Senha deve ter mínimo 6 caracteres"); return; }
+                          resetPasswordMut.mutate({ userId: resetPasswordUser.id, newPassword });
+                        }}>
+                          {resetPasswordMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                          Resetar Senha
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Dialog open={editingUser?.id === u.id} onOpenChange={(o) => { if (!o) setEditingUser(null); }}>
                   <DialogTrigger asChild>
                     <Button
