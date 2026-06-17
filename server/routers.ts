@@ -488,9 +488,13 @@ export const appRouter = router({
     upsertConfig: protectedProcedure
       .input(
         z.object({
+          provider: z.enum(["whatsapp_business", "twilio"]).optional(),
           phoneNumber: z.string().min(1),
-          phoneNumberId: z.string().min(1),
-          apiKey: z.string().min(1),
+          phoneNumberId: z.string().optional(),
+          apiKey: z.string().optional(),
+          twilioAccountSid: z.string().optional(),
+          twilioAuthToken: z.string().optional(),
+          twilioWhatsappNumber: z.string().optional(),
           enabled: z.boolean(),
           sendConfirmation: z.boolean(),
           sendReminder: z.boolean(),
@@ -499,7 +503,12 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        return await upsertWhatsappConfig({ ...input, barbershopId: 0 });
+        return await upsertWhatsappConfig({
+          ...input,
+          barbershopId: 0,
+          apiKey: input.apiKey || "",
+          phoneNumberId: input.phoneNumberId || "",
+        });
       }),
     deleteConfig: protectedProcedure
       .mutation(async ({ ctx }) => {
