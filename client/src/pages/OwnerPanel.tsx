@@ -909,50 +909,6 @@ function BrandingTab({ barbershop }: { barbershop: any }) {
           <p className="text-muted-foreground text-xs mt-2">Esta cor será usada na página pública de agendamento.</p>
         </div>
       </div>
-
-      {/* Horário de Trabalho */}
-      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-        <div>
-          <Label className="text-foreground font-semibold block mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4" /> Horário de Trabalho
-          </Label>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Abertura</Label>
-              <Input
-                type="time"
-                value={barbershop.openingTime || "08:00"}
-                onChange={(e) => {
-                  const newTime = e.target.value;
-                  updateColorMut.mutate({ 
-                    barbershopId: barbershop.id, 
-                    accentColor,
-                    openingTime: newTime 
-                  });
-                }}
-                className="bg-background border-border"
-              />
-            </div>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Fechamento</Label>
-              <Input
-                type="time"
-                value={barbershop.closingTime || "18:00"}
-                onChange={(e) => {
-                  const newTime = e.target.value;
-                  updateColorMut.mutate({ 
-                    barbershopId: barbershop.id, 
-                    accentColor,
-                    closingTime: newTime 
-                  });
-                }}
-                className="bg-background border-border"
-              />
-            </div>
-          </div>
-          <p className="text-muted-foreground text-xs mt-2">Estes horários serão exibidos na página pública.</p>
-        </div>
-      </div>
     </div>
   );
 }
