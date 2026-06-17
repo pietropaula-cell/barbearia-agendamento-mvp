@@ -102,6 +102,7 @@ export function WhatsAppConfigTab() {
       setConfirmationMessage(templates.confirmationMessage || "");
       setReminderMessage(templates.reminderMessage || "");
     }
+  }, [templates]);
 
   useEffect(() => {
     if (config && provider === "twilio") {
@@ -109,7 +110,6 @@ export function WhatsAppConfigTab() {
       setReminderContentSid((config as any).reminderContentSid || "");
     }
   }, [config, provider]);
-  }, [templates]);
 
   const handleSave = () => {
     if (provider === "whatsapp_business") {
