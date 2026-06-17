@@ -1,6 +1,7 @@
 import { getWhatsappConfig, getBarbershopById, getBarberById, getServiceById } from "./db";
 import { formatBR } from "@/lib/dateUtils";
 import { createWhatsAppBusinessAPI } from "./whatsapp-business-api";
+import { sendTwilioWhatsAppMessage } from "./twilio-whatsapp";
 
 /**
  * Gera URL do Google Maps para um endereço
@@ -174,7 +175,7 @@ export async function formatReminderMessage(
 }
 
 /**
- * Envia uma mensagem WhatsApp usando a WhatsApp Business API
+ * Envia uma mensagem WhatsApp usando o provider configurado (Twilio ou WhatsApp Business API)
  */
 export async function sendWhatsappMessage(
   barbershopId: number,
@@ -188,30 +189,49 @@ export async function sendWhatsappMessage(
       return { success: false, error: "WhatsApp não está configurado ou desabilitado" };
     }
 
-    // Validar credenciais da WhatsApp Business API
-    if (!config.phoneNumberId || !config.apiKey) {
-      console.warn("[WhatsApp] Credenciais da WhatsApp Business API não configuradas");
-      // Simular envio se credenciais não estiverem configuradas
-      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      return { success: true, messageId };
-    }
+    // Determinar qual provider usar
+    const provider = (config as any).provider || "whatsapp_business";
 
-    // Criar instância da API
-    const whatsappAPI = createWhatsAppBusinessAPI({
-      phoneNumberId: config.phoneNumberId,
-      accessToken: config.apiKey,
-      businessAccountId: "", // Não é necessário para envio de mensagens
-    });
+    if (provider === "twilio") {
+      // Usar Twilio
+      if (!(config as any).twilioAccountSid || !(config as any).twilioAuthToken || !(config as any).twilioWhatsappNumber) {
+        console.warn("[Twilio] Credenciais do Twilio não configuradas");
+        const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return { success: true, messageId };
+      }
 
-    // Enviar mensagem
-    const result = await whatsappAPI.sendTextMessage(phoneNumber, message);
-
-    if (result.success) {
-      console.log(`[WhatsApp] Mensagem enviada com sucesso para ${phoneNumber}`);
-      return { success: true, messageId: result.messageId };
+      return sendTwilioWhatsAppMessage(
+        {
+          accountSid: (config as any).twilioAccountSid,
+          authToken: (config as any).twilioAuthToken,
+          whatsappNumber: (config as any).twilioWhatsappNumber,
+        },
+        phoneNumber,
+        message
+      );
     } else {
-      console.error(`[WhatsApp] Erro ao enviar mensagem: ${result.error}`);
-      return { success: false, error: result.error };
+      // Usar WhatsApp Business API
+      if (!config.phoneNumberId || !config.apiKey) {
+        console.warn("[WhatsApp] Credenciais da WhatsApp Business API não configuradas");
+        const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return { success: true, messageId };
+      }
+
+      const whatsappAPI = createWhatsAppBusinessAPI({
+        phoneNumberId: config.phoneNumberId,
+        accessToken: config.apiKey,
+        businessAccountId: "",
+      });
+
+      const result = await whatsappAPI.sendTextMessage(phoneNumber, message);
+
+      if (result.success) {
+        console.log(`[WhatsApp] Mensagem enviada com sucesso para ${phoneNumber}`);
+        return { success: true, messageId: result.messageId };
+      } else {
+        console.error(`[WhatsApp] Erro ao enviar mensagem: ${result.error}`);
+        return { success: false, error: result.error };
+      }
     }
   } catch (error) {
     console.error("[WhatsApp] Erro ao enviar mensagem:", error);

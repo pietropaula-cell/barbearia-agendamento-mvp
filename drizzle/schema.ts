@@ -127,9 +127,13 @@ export type InsertAppointment = typeof appointments.$inferInsert;
 export const whatsappConfigs = mysqlTable("whatsapp_configs", {
   id: int("id").autoincrement().primaryKey(),
   barbershopId: int("barbershopId").notNull().unique(),
+  provider: mysqlEnum("provider", ["whatsapp_business", "twilio"]).default("whatsapp_business").notNull(),
   phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
   phoneNumberId: varchar("phoneNumberId", { length: 100 }),
   apiKey: varchar("apiKey", { length: 255 }).notNull(),
+  twilioAccountSid: varchar("twilioAccountSid", { length: 255 }),
+  twilioAuthToken: varchar("twilioAuthToken", { length: 255 }),
+  twilioWhatsappNumber: varchar("twilioWhatsappNumber", { length: 20 }),
   enabled: boolean("enabled").default(false).notNull(),
   sendConfirmation: boolean("sendConfirmation").default(true).notNull(),
   sendReminder: boolean("sendReminder").default(true).notNull(),
