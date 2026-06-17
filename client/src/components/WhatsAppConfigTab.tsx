@@ -10,6 +10,7 @@ import { Loader2, MessageCircle, Send, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export function WhatsAppConfigTab() {
+  const [barbershopId, setBarbershopId] = useState<number | null>(null);
   const [provider, setProvider] = useState<"whatsapp_business" | "twilio">("whatsapp_business");
   
   // WhatsApp Business API
@@ -36,8 +37,15 @@ export function WhatsAppConfigTab() {
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestResult, setShowTestResult] = useState(false);
 
-  const { data: config, isLoading } = trpc.whatsapp.getConfig.useQuery();
-  const { data: templates } = trpc.whatsapp.getMessageTemplates.useQuery();
+  const { data: barbershops } = trpc.barbershop.list.useQuery();
+  const { data: config, isLoading } = trpc.whatsapp.getConfig.useQuery(
+    { barbershopId: barbershopId || 0 },
+    { enabled: !!barbershopId }
+  );
+  const { data: templates } = trpc.whatsapp.getMessageTemplates.useQuery(
+    { barbershopId: barbershopId || 0 },
+    { enabled: !!barbershopId }
+  );
 
   const upsertMut = trpc.whatsapp.upsertConfig.useMutation({
     onSuccess: () => {
@@ -110,6 +118,10 @@ export function WhatsAppConfigTab() {
 
 
   const handleSave = () => {
+    if (!barbershopId) {
+      toast.error("Selecione uma barbearia");
+      return;
+    }
     if (provider === "whatsapp_business") {
       if (!phoneNumber || !apiKey) {
         toast.error("Preencha número de telefone e API key");
@@ -123,6 +135,7 @@ export function WhatsAppConfigTab() {
     }
 
     upsertMut.mutate({
+      barbershopId,
       provider,
       phoneNumber: provider === "whatsapp_business" ? phoneNumber : twilioWhatsappNumber,
       phoneNumberId: provider === "whatsapp_business" ? phoneNumberId : undefined,
@@ -140,12 +153,17 @@ export function WhatsAppConfigTab() {
   };
 
   const handleTestMessage = (type: "confirmation" | "reminder") => {
+    if (!barbershopId) {
+      toast.error("Selecione uma barbearia");
+      return;
+    }
     const message = type === "confirmation" ? confirmationMessage : reminderMessage;
     if (!message) {
       toast.error("Preencha a mensagem antes de testar");
       return;
     }
     testTemplateMut.mutate({
+      barbershopId,
       messageType: type,
       message,
     });
@@ -161,6 +179,23 @@ export function WhatsAppConfigTab() {
 
   return (
     <div className="space-y-6">
+      {/* Seletor de Barbearias */}
+      <Card className="bg-card border-border p-6">
+        <Label className="text-muted-foreground text-sm mb-2 block">Selecione a Barbearia</Label>
+        <select
+          value={barbershopId || ""}
+          onChange={(e) => setBarbershopId(e.target.value ? parseInt(e.target.value) : null)}
+          className="w-full px-3 py-2 bg-background border border-border rounded text-foreground"
+        >
+          <option value="">-- Selecione uma barbearia --</option>
+          {barbershops?.map((shop: any) => (
+            <option key={shop.id} value={shop.id}>
+              {shop.name}
+            </option>
+          ))}
+        </select>
+      </Card>
+
       <Tabs defaultValue="config" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-card border border-border">
           <TabsTrigger value="config">Configuração</TabsTrigger>
@@ -475,12 +510,17 @@ export function WhatsAppConfigTab() {
                 </Button>
                 <Button
                   className="flex-1"
-                  onClick={() =>
+                  onClick={() => {
+                    if (!barbershopId) {
+                      toast.error("Selecione uma barbearia");
+                      return;
+                    }
                     updateTemplatesMut.mutate({
+                      barbershopId,
                       confirmationMessage,
                       reminderMessage,
-                    })
-                  }
+                    });
+                  }}
                   disabled={updateTemplatesMut.isPending}
                 >
                   {updateTemplatesMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

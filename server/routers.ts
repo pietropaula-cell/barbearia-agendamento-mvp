@@ -491,16 +491,15 @@ export const appRouter = router({
   }),
   whatsapp: router({
     getConfig: protectedProcedure
-      .query(async ({ ctx }) => {
+      .input(z.object({ barbershopId: z.number() }))
+      .query(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        if (!ctx.user.barbershopId) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem uma barbearia associada" });
-        }
-        return await getWhatsappConfig(ctx.user.barbershopId);
+        return await getWhatsappConfig(input.barbershopId);
       }),
     upsertConfig: protectedProcedure
       .input(
         z.object({
+          barbershopId: z.number(),
           provider: z.enum(["whatsapp_business", "twilio"]).optional(),
           phoneNumber: z.string().min(1),
           phoneNumberId: z.string().optional(),
@@ -518,23 +517,18 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        if (!ctx.user.barbershopId) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem uma barbearia associada" });
-        }
         return await upsertWhatsappConfig({
           ...input,
-          barbershopId: ctx.user.barbershopId,
+          barbershopId: input.barbershopId,
           apiKey: input.apiKey || "",
           phoneNumberId: input.phoneNumberId || "",
         });
       }),
     deleteConfig: protectedProcedure
-      .mutation(async ({ ctx }) => {
+      .input(z.object({ barbershopId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        if (!ctx.user.barbershopId) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem uma barbearia associada" });
-        }
-        await deleteWhatsappConfig(ctx.user.barbershopId);
+        await deleteWhatsappConfig(input.barbershopId);
         return { success: true };
       }),
     testConnection: protectedProcedure
@@ -558,25 +552,28 @@ export const appRouter = router({
         }
       }),
     getMessageTemplates: protectedProcedure
-      .query(async ({ ctx }) => {
+      .input(z.object({ barbershopId: z.number() }))
+      .query(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        return await getWhatsappMessageTemplates(0);
+        return await getWhatsappMessageTemplates(input.barbershopId);
       }),
     updateMessageTemplates: protectedProcedure
       .input(
         z.object({
+          barbershopId: z.number(),
           confirmationMessage: z.string().min(1),
           reminderMessage: z.string().min(1),
         })
       )
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
-        await updateWhatsappMessageTemplates(0, input.confirmationMessage, input.reminderMessage);
+        await updateWhatsappMessageTemplates(input.barbershopId, input.confirmationMessage, input.reminderMessage);
         return { success: true };
       }),
     testTemplate: protectedProcedure
       .input(
         z.object({
+          barbershopId: z.number(),
           messageType: z.enum(["confirmation", "reminder"]),
           message: z.string().min(1),
         })
