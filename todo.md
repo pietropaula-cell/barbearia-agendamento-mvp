@@ -217,3 +217,12 @@
 - [x] Adicionar campos email e senha na criação/edição de barbeiro (tela do owner) - agora com opção de alterar senha na edição
 - [x] Implementar trocar senha para qualquer usuário logado (com senha antiga)
 - [x] Implementar trocar senha para admin (sem senha antiga, para usuários esquecidos)
+- [x] Corrigir erro de import duplicado em Home.tsx
+
+
+## Lembretes Automáticos de WhatsApp (Jun 2026 - Rodada 5)
+- [x] Criar handler de scheduled job para lembretes
+- [x] Adicionar campo reminderSentAt na tabela appointments
+- [x] Integrar endpoint /api/scheduled/whatsapp-reminder no Express
+- [x] Remover fallback fake de sucesso quando credenciais faltam
+- [ ] Criar job de cron após deploy no Railway (manus-heartbeat create)
