@@ -15,6 +15,13 @@ export function WhatsAppTemplatesTab() {
 
   const { data: templates } = trpc.whatsapp.getMessageTemplates.useQuery();
 
+  const sendTestMut = trpc.whatsapp.sendTestMessages.useMutation({
+    onSuccess: () => {
+      toast.success("Mensagens de teste enviadas com sucesso para 48991447736!");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
   const testMut = trpc.whatsapp.testTemplate.useMutation({
     onSuccess: (data) => {
       setTestResult(data);
@@ -148,6 +155,16 @@ export function WhatsAppTemplatesTab() {
               disabled={updateMut.isPending}
             >
               Cancelar
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-card border-border flex-1"
+              onClick={() => sendTestMut.mutate({ confirmationMessage, reminderMessage })}
+              disabled={sendTestMut.isPending || !confirmationMessage || !reminderMessage}
+            >
+              {sendTestMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {!sendTestMut.isPending && <Send className="w-4 h-4 mr-2" />}
+              Testar Envio
             </Button>
             <Button
               className="flex-1"

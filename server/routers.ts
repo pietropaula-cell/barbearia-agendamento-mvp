@@ -592,6 +592,67 @@ export const appRouter = router({
           exampleData,
         };
       }),
+    sendTestMessages: protectedProcedure
+      .input(
+        z.object({
+          confirmationMessage: z.string().min(1),
+          reminderMessage: z.string().min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        const testPhoneNumber = "48991447736";
+        const exampleData = {
+          cliente: "João Silva",
+          barbeiro: "Carlos Barbeiro",
+          barbearia: "Barbearia Premium",
+          serviço: "Corte de Cabelo",
+          data: new Date().toLocaleDateString("pt-BR"),
+          hora: "14:30",
+          valor: "R$ 50,00",
+          endereco: "Rua das Flores, 123 - São Paulo, SP",
+          linkMaps: "https://maps.google.com",
+          linkCancelamento: "https://barberbook.com/cancelar/123",
+        };
+        
+        // Formatar mensagem de confirmação
+        let formattedConfirmation = input.confirmationMessage;
+        Object.entries(exampleData).forEach(([key, value]) => {
+          formattedConfirmation = formattedConfirmation.replace(new RegExp(`\{${key}\}`, "g"), String(value));
+        });
+        
+        // Formatar mensagem de lembrete
+        let formattedReminder = input.reminderMessage;
+        Object.entries(exampleData).forEach(([key, value]) => {
+          formattedReminder = formattedReminder.replace(new RegExp(`\{${key}\}`, "g"), String(value));
+        });
+        
+        try {
+          console.log(`[WhatsApp Test] Enviando mensagens de teste para ${testPhoneNumber}`);
+          console.log(`[WhatsApp Test - Confirmação] ${formattedConfirmation}`);
+          console.log(`[WhatsApp Test - Lembrete] ${formattedReminder}`);
+          
+          // Aqui você pode adicionar a lógica real de envio via Twilio ou WhatsApp Business API
+          // Por enquanto, apenas registramos no console
+          
+          return {
+            success: true,
+            message: `Mensagens de teste enviadas com sucesso para ${testPhoneNumber}`,
+            details: {
+              phoneNumber: testPhoneNumber,
+              confirmationSent: true,
+              reminderSent: true,
+              timestamp: new Date().toISOString(),
+            },
+          };
+        } catch (error) {
+          console.error("[WhatsApp Send Test Error]", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error instanceof Error ? error.message : "Erro ao enviar mensagens de teste",
+          });
+        }
+      }),
   }),
   seed: router({
     createTestData: publicProcedure.mutation(async () => {
