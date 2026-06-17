@@ -663,12 +663,12 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
           </Button>
         </div>
 
-        <Select value={selectedBarberId?.toString() ?? ""} onValueChange={(v) => setSelectedBarberId(v ? parseInt(v) : null)}>
+        <Select value={selectedBarberId?.toString() ?? "all"} onValueChange={(v) => setSelectedBarberId(v === "all" ? null : parseInt(v))}>
           <SelectTrigger className="w-48 bg-card border-border">
             <SelectValue placeholder="Filtrar por barbeiro..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os barbeiros</SelectItem>
+            <SelectItem value="all">Todos os barbeiros</SelectItem>
             {barbers?.map((b: any) => (
               <SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>
             ))}
