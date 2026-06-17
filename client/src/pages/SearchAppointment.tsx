@@ -54,10 +54,8 @@ export default function SearchAppointment() {
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
-        <Link href="/">
-          <a className="text-primary hover:underline mb-8 inline-flex items-center gap-1 text-sm">
-            ← Voltar
-          </a>
+        <Link href="/" className="text-primary hover:underline mb-8 inline-flex items-center gap-1 text-sm">
+          ← Voltar
         </Link>
 
         <div className="mb-8">
@@ -158,7 +156,7 @@ export default function SearchAppointment() {
                             className="border-destructive/50 text-destructive hover:bg-destructive/10 bg-transparent"
                             onClick={() => {
                               if (confirm("Deseja cancelar este agendamento?")) {
-                                cancelMut.mutate({ id: apt.id });
+                                cancelMut.mutate({ id: apt.id, phone: searchPhone });
                               }
                             }}
                             disabled={cancelMut.isPending}
@@ -182,8 +180,8 @@ export default function SearchAppointment() {
                 <p className="text-muted-foreground text-sm mb-4">
                   Não encontramos agendamentos para o telefone <strong>{searchPhone}</strong>
                 </p>
-                <Link href="/">
-                  <a className="text-primary hover:underline text-sm">Fazer um agendamento →</a>
+                <Link href="/" className="text-primary hover:underline text-sm">
+                  Fazer um agendamento →
                 </Link>
               </Card>
             )}

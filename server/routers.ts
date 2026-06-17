@@ -46,7 +46,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
+import { getDb, customers } from "./db";
+import { eq } from "drizzle-orm";
 import { sendConfirmationMessage } from "./whatsapp-service";
 
 function requireRole(userRole: string | undefined, allowed: string[]): void {
@@ -416,10 +417,17 @@ export const appRouter = router({
         return { id, startsAt, endsAt, service: { name: service.name, price: service.price, durationMin: service.durationMin }, customer: { name: customer.name, phone: customer.phone } };
       }),
 
-    cancelAppointment: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+    cancelAppointment: publicProcedure.input(z.object({ id: z.number(), phone: z.string().min(8) })).mutation(async ({ input }) => {
       const appt = await getAppointmentById(input.id);
       if (!appt) throw new TRPCError({ code: "NOT_FOUND" });
       if (appt.status === "cancelled") throw new TRPCError({ code: "BAD_REQUEST", message: "Agendamento já cancelado." });
+      
+      // Validar que o telefone pertence ao agendamento
+      const customer = await getDb().then(db => db?.select().from(customers).where(eq(customers.phone, input.phone)).limit(1));
+      if (!customer || customer.length === 0 || customer[0].id !== appt.customerId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem permissão para cancelar este agendamento." });
+      }
+      
       await updateAppointmentStatus(input.id, "cancelled");
       return { success: true };
     }),

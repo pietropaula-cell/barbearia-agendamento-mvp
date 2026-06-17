@@ -28,6 +28,9 @@ import {
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
+// Export schema tables for use in other modules
+export { customers, appointments } from "../drizzle/schema";
+
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {

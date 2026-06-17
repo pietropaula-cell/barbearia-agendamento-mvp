@@ -208,25 +208,32 @@ export default function Booking() {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Link href="/" className="flex-1">
-              <Button variant="outline" className="w-full bg-card border-border">Início</Button>
+          <div className="flex gap-3 flex-col">
+            <div className="flex gap-3">
+              <Link href="/" className="flex-1">
+                <Button variant="outline" className="w-full bg-card border-border">Início</Button>
+              </Link>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  setStep(1);
+                  setSelectedBarberId(null);
+                  setSelectedServiceId(null);
+                  setSelectedDate("");
+                  setSelectedTime("");
+                  setCustomerName("");
+                  setCustomerPhone("");
+                  setConfirmedAppointment(null);
+                }}
+              >
+                Novo Agendamento
+              </Button>
+            </div>
+            <Link href="/buscar-agendamento" className="w-full">
+              <Button variant="outline" className="w-full bg-card border-border border-primary/30 text-primary hover:bg-primary/10">
+                Ver meus agendamentos
+              </Button>
             </Link>
-            <Button
-              className="flex-1"
-              onClick={() => {
-                setStep(1);
-                setSelectedBarberId(null);
-                setSelectedServiceId(null);
-                setSelectedDate("");
-                setSelectedTime("");
-                setCustomerName("");
-                setCustomerPhone("");
-                setConfirmedAppointment(null);
-              }}
-            >
-              Novo Agendamento
-            </Button>
           </div>
         </div>
       </div>

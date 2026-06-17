@@ -67,6 +67,11 @@ export default function Home() {
                 <Calendar className="w-4 h-4" /> Ver Barbearias
               </Button>
             </a>
+            <Link href="/buscar-agendamento">
+              <Button size="lg" variant="outline" className="gap-2 px-8 bg-card border-border hover:bg-secondary">
+                <Clock className="w-4 h-4" /> Meus Agendamentos
+              </Button>
+            </Link>
             {!isAuthenticated && (
               <Link href="/login">
                 <Button size="lg" variant="outline" className="gap-2 px-8 bg-card border-border hover:bg-secondary">

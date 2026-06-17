@@ -135,10 +135,12 @@
 
 
 ## Busca de Agendamento por Telefone (Nova)
-- [ ] Adicionar opção de busca por telefone na página pública
-- [ ] Permitir cliente buscar agendamentos pelo número de telefone
-- [ ] Exibir agendamentos encontrados com data, hora e barbeiro
-- [ ] Opção de cancelar agendamento diretamente
+- [x] Adicionar opção de busca por telefone na página pública
+- [x] Permitir cliente buscar agendamentos pelo número de telefone
+- [x] Exibir agendamentos encontrados com data, hora e barbeiro
+- [x] Opção de cancelar agendamento diretamente
+- [x] Adicionar link para buscar agendamento na Home.tsx
+- [x] Adicionar botão para buscar agendamento na tela de sucesso do agendamento
 
 ## Intervalo na Agenda (Nova)
 - [x] Adicionar campos breakStartTime e breakEndTime ao schema
