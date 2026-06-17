@@ -179,7 +179,7 @@ export function WhatsAppConfigTab() {
                   {enabled ? "✅ Ativado" : "❌ Desativado"}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
                   variant="outline"
                   className="bg-card border-border"
@@ -190,11 +190,34 @@ export function WhatsAppConfigTab() {
                 <Button
                   variant="outline"
                   className="bg-card border-border"
-                  onClick={() => testMut.mutate({ phoneNumber: "", apiKey: "" })}
+                  onClick={() => {
+                    if (provider === "twilio" && (!twilioAccountSid || !twilioAuthToken)) {
+                      toast.error("Configure as credenciais do Twilio primeiro");
+                      return;
+                    }
+                    if (provider === "whatsapp_business" && (!phoneNumber || !apiKey)) {
+                      toast.error("Configure o WhatsApp Business API primeiro");
+                      return;
+                    }
+                    testMut.mutate({
+                      phoneNumber: provider === "twilio" ? twilioWhatsappNumber : phoneNumber,
+                      apiKey: provider === "twilio" ? twilioAuthToken : apiKey,
+                    });
+                  }}
                   disabled={testMut.isPending}
                 >
                   {testMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Testar Conexão
+                </Button>
+                <Button
+                  variant="outline"
+                  className="bg-card border-border"
+                  onClick={() => handleTestMessage("confirmation")}
+                  disabled={testTemplateMut.isPending || !confirmationMessage}
+                >
+                  {testTemplateMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <Send className="w-4 h-4 mr-2" />
+                  Enviar Teste
                 </Button>
               </div>
             </Card>
