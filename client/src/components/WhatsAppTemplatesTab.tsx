@@ -3,15 +3,26 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export function WhatsAppTemplatesTab() {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [reminderMessage, setReminderMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
+  const [showTestResult, setShowTestResult] = useState(false);
 
   const { data: templates } = trpc.whatsapp.getMessageTemplates.useQuery();
+
+  const testMut = trpc.whatsapp.testTemplate.useMutation({
+    onSuccess: (data) => {
+      setTestResult(data);
+      setShowTestResult(true);
+      toast.success("Mensagem de teste formatada com sucesso!");
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   const updateMut = trpc.whatsapp.updateMessageTemplates.useMutation({
     onSuccess: () => {
@@ -36,6 +47,18 @@ export function WhatsAppTemplatesTab() {
     updateMut.mutate({
       confirmationMessage,
       reminderMessage,
+    });
+  };
+
+  const handleTestMessage = (type: "confirmation" | "reminder") => {
+    const message = type === "confirmation" ? confirmationMessage : reminderMessage;
+    if (!message) {
+      toast.error("Preencha a mensagem antes de testar");
+      return;
+    }
+    testMut.mutate({
+      messageType: type,
+      message,
     });
   };
 
@@ -80,6 +103,17 @@ export function WhatsAppTemplatesTab() {
             <p className="text-xs text-muted-foreground mt-1">
               Variáveis: {'{cliente}'}, {'{barbeiro}'}, {'{serviço}'}, {'{data}'}, {'{hora}'}, {'{valor}'}, {'{endereco}'}
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="bg-card border-border mt-2"
+              onClick={() => handleTestMessage("confirmation")}
+              disabled={testMut.isPending || !confirmationMessage}
+            >
+              {testMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {!testMut.isPending && <Send className="w-4 h-4 mr-2" />}
+              Testar Mensagem
+            </Button>
           </div>
           <div>
             <Label className="text-foreground mb-2 block">Mensagem de Lembrete *</Label>
@@ -94,6 +128,17 @@ export function WhatsAppTemplatesTab() {
             <p className="text-xs text-muted-foreground mt-1">
               Variáveis: {'{cliente}'}, {'{barbeiro}'}, {'{serviço}'}, {'{data}'}, {'{hora}'}, {'{endereco}'}
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="bg-card border-border mt-2"
+              onClick={() => handleTestMessage("reminder")}
+              disabled={testMut.isPending || !reminderMessage}
+            >
+              {testMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {!testMut.isPending && <Send className="w-4 h-4 mr-2" />}
+              Testar Mensagem
+            </Button>
           </div>
           <div className="flex gap-2 pt-4 border-t border-border">
             <Button
@@ -112,6 +157,38 @@ export function WhatsAppTemplatesTab() {
               {updateMut.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Salvar Modelos
             </Button>
+          </div>
+        </Card>
+      )}
+
+      {showTestResult && testResult && (
+        <Card className="bg-primary/5 border border-primary/40 p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-foreground">
+              Prévia da Mensagem de {testResult.messageType === "confirmation" ? "Confirmação" : "Lembrete"}
+            </h3>
+            <Button
+              variant="outline"
+              className="bg-card border-border"
+              onClick={() => setShowTestResult(false)}
+            >
+              Fechar
+            </Button>
+          </div>
+          <div className="bg-background border border-border rounded p-4 space-y-3">
+            <p className="text-sm text-foreground whitespace-pre-wrap">
+              {testResult.formattedMessage}
+            </p>
+          </div>
+          <div className="bg-background border border-border rounded p-4 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground">Dados de Exemplo Utilizados:</p>
+            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+              {Object.entries(testResult.exampleData).map(([key, value]) => (
+                <div key={key}>
+                  <span className="font-mono">{'{' + key + '}'}</span>: {String(value)}
+                </div>
+              ))}
+            </div>
           </div>
         </Card>
       )}

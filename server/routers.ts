@@ -542,6 +542,35 @@ export const appRouter = router({
         await updateWhatsappMessageTemplates(0, input.confirmationMessage, input.reminderMessage);
         return { success: true };
       }),
+    testTemplate: protectedProcedure
+      .input(
+        z.object({
+          messageType: z.enum(["confirmation", "reminder"]),
+          message: z.string().min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        const exampleData = {
+          cliente: "João Silva",
+          barbeiro: "Carlos Barbeiro",
+          serviço: "Corte de Cabelo",
+          data: new Date().toLocaleDateString("pt-BR"),
+          hora: "14:30",
+          valor: "R$ 50,00",
+          endereco: "Rua das Flores, 123 - São Paulo, SP",
+        };
+        let formattedMessage = input.message;
+        Object.entries(exampleData).forEach(([key, value]) => {
+          formattedMessage = formattedMessage.replace(new RegExp(`\{${key}\}`, "g"), value);
+        });
+        return {
+          success: true,
+          messageType: input.messageType,
+          formattedMessage,
+          exampleData,
+        };
+      }),
   }),
   seed: router({
     createTestData: publicProcedure.mutation(async () => {
