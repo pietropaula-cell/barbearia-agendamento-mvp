@@ -673,12 +673,13 @@ export default function AdminPanel() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="barbearias"><BarbershopsTab /></TabsContent>
           <TabsContent value="usuarios"><UsersTab /></TabsContent>
-          {activeTab === "whatsapp" && (
+          <TabsContent value="whatsapp">
             <div>
               <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Configuracao WhatsApp</h2>
-              <p className="text-muted-foreground mb-4">Selecione uma barbearia para configurar as notificacoes WhatsApp</p>
+              <p className="text-muted-foreground mb-4">Configure as notificacoes WhatsApp para todas as barbearias</p>
+              <WhatsAppConfigTab />
             </div>
-          )}
+          </TabsContent>
         </Tabs>
       </main>
     </div>
