@@ -11,16 +11,41 @@ function getMapsUrl(address: string): string {
 }
 
 /**
- * Formata uma mensagem de confirmação de agendamento com link do Maps
+ * Gera URL de cancelamento de agendamento
  */
-export async function formatConfirmationMessage(
+function getCancelUrl(appointmentId: number, baseUrl: string = ""): string {
+  const url = baseUrl || "https://barbearia-agendamento.up.railway.app";
+  return `${url}/cancelar/${appointmentId}`;
+}
+
+/**
+ * Interface para dados de agendamento
+ */
+export interface AppointmentData {
+  cliente: string;
+  barbeiro: string;
+  servico: string;
+  valor: string;
+  data: string;
+  hora: string;
+  endereco: string;
+  linkMaps: string;
+  linkCancelamento: string;
+  barbearia: string;
+}
+
+/**
+ * Coleta todos os dados necessários para substituir variáveis
+ */
+export async function getAppointmentData(
+  appointmentId: number,
   barbershopId: number,
   barberId: number,
   serviceId: number,
   customerName: string,
   startsAt: Date,
-  endsAt: Date
-): Promise<string> {
+  baseUrl?: string
+): Promise<AppointmentData> {
   const barbershop = await getBarbershopById(barbershopId);
   const barber = await getBarberById(barberId);
   const service = await getServiceById(serviceId);
@@ -29,69 +54,123 @@ export async function formatConfirmationMessage(
     throw new Error("Dados do agendamento não encontrados");
   }
 
-  const formattedDate = formatBR(startsAt, "dd/MM/yyyy 'às' HH:mm");
+  const formattedDate = formatBR(startsAt, "dd/MM/yyyy");
+  const formattedTime = formatBR(startsAt, "HH:mm");
   const mapsUrl = barbershop.address ? getMapsUrl(barbershop.address) : "";
+  const cancelUrl = getCancelUrl(appointmentId, baseUrl);
 
-  let message = `Olá ${customerName}! 👋\n\n`;
-  message += `Seu agendamento foi confirmado! ✅\n\n`;
-  message += `📍 Barbearia: ${barbershop.name}\n`;
-  message += `💇 Barbeiro: ${barber.name}\n`;
-  message += `✂️ Serviço: ${service.name}\n`;
-  message += `📅 Data e Hora: ${formattedDate}\n`;
-  message += `💰 Valor: R$ ${Number(service.price).toFixed(2)}\n\n`;
+  return {
+    cliente: customerName,
+    barbeiro: barber.name,
+    servico: service.name,
+    valor: `R$ ${Number(service.price).toFixed(2)}`,
+    data: formattedDate,
+    hora: formattedTime,
+    endereco: barbershop.address || "Endereço não informado",
+    linkMaps: mapsUrl,
+    linkCancelamento: cancelUrl,
+    barbearia: barbershop.name,
+  };
+}
 
-  if (mapsUrl) {
-    message += `📍 Localização: ${mapsUrl}\n\n`;
-  }
+/**
+ * Substitui variáveis dinâmicas em um template de mensagem
+ */
+export function replaceVariables(template: string, data: AppointmentData): string {
+  let message = template;
 
-  if (barbershop.address) {
-    message += `Endereço: ${barbershop.address}\n`;
-  }
-
-  message += `\nAté logo! 😊`;
+  // Substituir todas as variáveis
+  Object.entries(data).forEach(([key, value]) => {
+    const regex = new RegExp(`\\{${key}\\}`, "g");
+    message = message.replace(regex, value || "");
+  });
 
   return message;
+}
+
+/**
+ * Formata uma mensagem de confirmação de agendamento com link do Maps
+ */
+export async function formatConfirmationMessage(
+  appointmentId: number,
+  barbershopId: number,
+  barberId: number,
+  serviceId: number,
+  customerName: string,
+  startsAt: Date,
+  endsAt: Date,
+  customTemplate?: string
+): Promise<string> {
+  const data = await getAppointmentData(
+    appointmentId,
+    barbershopId,
+    barberId,
+    serviceId,
+    customerName,
+    startsAt
+  );
+
+  // Se houver um template customizado, usar ele
+  if (customTemplate) {
+    return replaceVariables(customTemplate, data);
+  }
+
+  // Template padrão
+  let message = `Olá {cliente}! 👋\n\n`;
+  message += `Seu agendamento foi confirmado! ✅\n\n`;
+  message += `🏪 Barbearia: {barbearia}\n`;
+  message += `💇 Barbeiro: {barbeiro}\n`;
+  message += `✂️ Serviço: {servico}\n`;
+  message += `📅 Data: {data}\n`;
+  message += `⏰ Hora: {hora}\n`;
+  message += `💰 Valor: {valor}\n\n`;
+  message += `📍 Endereço: {endereco}\n`;
+  message += `🗺️ Localização: {linkMaps}\n\n`;
+  message += `❌ Cancelar: {linkCancelamento}\n\n`;
+  message += `Até logo! 😊`;
+
+  return replaceVariables(message, data);
 }
 
 /**
  * Formata uma mensagem de lembrete de agendamento com link do Maps
  */
 export async function formatReminderMessage(
+  appointmentId: number,
   barbershopId: number,
   barberId: number,
   serviceId: number,
   customerName: string,
-  startsAt: Date
+  startsAt: Date,
+  customTemplate?: string
 ): Promise<string> {
-  const barbershop = await getBarbershopById(barbershopId);
-  const barber = await getBarberById(barberId);
-  const service = await getServiceById(serviceId);
+  const data = await getAppointmentData(
+    appointmentId,
+    barbershopId,
+    barberId,
+    serviceId,
+    customerName,
+    startsAt
+  );
 
-  if (!barbershop || !barber || !service) {
-    throw new Error("Dados do agendamento não encontrados");
+  // Se houver um template customizado, usar ele
+  if (customTemplate) {
+    return replaceVariables(customTemplate, data);
   }
 
-  const formattedDate = formatBR(startsAt, "dd/MM/yyyy 'às' HH:mm");
-  const mapsUrl = barbershop.address ? getMapsUrl(barbershop.address) : "";
-
-  let message = `Olá ${customerName}! ⏰\n\n`;
+  // Template padrão
+  let message = `Olá {cliente}! ⏰\n\n`;
   message += `Lembrete: Seu agendamento é em 1 hora!\n\n`;
-  message += `📍 Barbearia: ${barbershop.name}\n`;
-  message += `💇 Barbeiro: ${barber.name}\n`;
-  message += `✂️ Serviço: ${service.name}\n`;
-  message += `📅 Data e Hora: ${formattedDate}\n\n`;
+  message += `🏪 Barbearia: {barbearia}\n`;
+  message += `💇 Barbeiro: {barbeiro}\n`;
+  message += `✂️ Serviço: {servico}\n`;
+  message += `📅 Data: {data}\n`;
+  message += `⏰ Hora: {hora}\n\n`;
+  message += `📍 Endereço: {endereco}\n`;
+  message += `🗺️ Localização: {linkMaps}\n\n`;
+  message += `Até logo! 😊`;
 
-  if (mapsUrl) {
-    message += `📍 Localização: ${mapsUrl}\n\n`;
-  }
-
-  if (barbershop.address) {
-    message += `Endereço: ${barbershop.address}\n`;
-  }
-
-  message += `\nAté logo! 😊`;
-
-  return message;
+  return replaceVariables(message, data);
 }
 
 /**
@@ -147,6 +226,7 @@ export async function sendWhatsappMessage(
  * Envia mensagem de confirmação de agendamento
  */
 export async function sendConfirmationMessage(
+  appointmentId: number,
   barbershopId: number,
   barberId: number,
   serviceId: number,
@@ -156,13 +236,18 @@ export async function sendConfirmationMessage(
   endsAt: Date
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
+    const config = await getWhatsappConfig(barbershopId);
+    const customTemplate = config?.confirmationMessage || undefined;
+
     const message = await formatConfirmationMessage(
+      appointmentId,
       barbershopId,
       barberId,
       serviceId,
       customerName,
       startsAt,
-      endsAt
+      endsAt,
+      customTemplate
     );
 
     return sendWhatsappMessage(barbershopId, customerPhone, message);
@@ -179,6 +264,7 @@ export async function sendConfirmationMessage(
  * Envia mensagem de lembrete de agendamento
  */
 export async function sendReminderMessage(
+  appointmentId: number,
   barbershopId: number,
   barberId: number,
   serviceId: number,
@@ -187,12 +273,17 @@ export async function sendReminderMessage(
   startsAt: Date
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
+    const config = await getWhatsappConfig(barbershopId);
+    const customTemplate = config?.reminderMessage || undefined;
+
     const message = await formatReminderMessage(
+      appointmentId,
       barbershopId,
       barberId,
       serviceId,
       customerName,
-      startsAt
+      startsAt,
+      customTemplate
     );
 
     return sendWhatsappMessage(barbershopId, customerPhone, message);

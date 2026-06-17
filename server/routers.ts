@@ -403,6 +403,7 @@ export const appRouter = router({
         
         // Enviar mensagem de confirmação via WhatsApp (não bloqueia a resposta)
         sendConfirmationMessage(
+          id,
           input.barbershopId,
           input.barberId,
           input.serviceId,

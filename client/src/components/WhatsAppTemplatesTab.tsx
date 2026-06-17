@@ -101,7 +101,7 @@ export function WhatsAppTemplatesTab() {
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Variáveis: {'{cliente}'}, {'{barbeiro}'}, {'{serviço}'}, {'{data}'}, {'{hora}'}, {'{valor}'}, {'{endereco}'}
+              Variáveis: {'{cliente}'}, {'{barbeiro}'}, {'{serviço}'}, {'{data}'}, {'{hora}'}, {'{valor}'}, {'{endereco}'}, {'{linkMaps}'}, {'{linkCancelamento}'}
             </p>
             <Button
               type="button"
@@ -126,7 +126,7 @@ export function WhatsAppTemplatesTab() {
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Variáveis: {'{cliente}'}, {'{barbeiro}'}, {'{serviço}'}, {'{data}'}, {'{hora}'}, {'{endereco}'}
+              Variáveis: {'{cliente}'}, {'{barbeiro}'}, {'{serviço}'}, {'{data}'}, {'{hora}'}, {'{endereco}'}, {'{linkMaps}'}
             </p>
             <Button
               type="button"
@@ -201,15 +201,21 @@ export function WhatsAppTemplatesTab() {
           <br />
           • {'{barbeiro}'} - Nome do barbeiro
           <br />
+          • {'{barbearia}'} - Nome da barbearia
+          <br />
           • {'{serviço}'} - Nome do serviço
           <br />
-          • {'{data}'} - Data do agendamento
+          • {'{valor}'} - Valor do serviço (ex: R$ 50,00)
           <br />
-          • {'{hora}'} - Hora do agendamento
+          • {'{data}'} - Data do agendamento (ex: 17/06/2026)
           <br />
-          • {'{valor}'} - Valor do serviço
+          • {'{hora}'} - Hora do agendamento (ex: 14:30)
           <br />
           • {'{endereco}'} - Endereço da barbearia
+          <br />
+          • {'{linkMaps}'} - Link do Google Maps com o endereço
+          <br />
+          • {'{linkCancelamento}'} - Link para cancelar o agendamento
         </p>
       </Card>
     </div>
