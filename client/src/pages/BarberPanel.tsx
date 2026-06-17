@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Scissors, LogOut, Calendar, Clock, Loader2, Lock, Check, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -27,6 +28,7 @@ export default function BarberPanel() {
   const [blockStart, setBlockStart] = useState("09:00");
   const [blockEnd, setBlockEnd] = useState("10:00");
   const [blockNote, setBlockNote] = useState("");
+  const [weekOffset, setWeekOffset] = useState(0);
 
   // Find barber linked to this user
   const { data: barbershops } = trpc.barbershops.list.useQuery(
@@ -49,6 +51,39 @@ export default function BarberPanel() {
     { barberId: myBarber?.id ?? 0 },
     { enabled: !!myBarber }
   );
+
+  // Calcular semana atual
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+  weekStart.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 7);
+
+  // Filtrar agendamentos da semana
+  const weekAppointments = useMemo(() => {
+    if (!appointments) return [];
+    return appointments.filter((a: any) => {
+      const apptDate = new Date(a.startsAt);
+      return apptDate >= weekStart && apptDate < weekEnd && a.status !== "blocked";
+    }).sort((a: any, b: any) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
+  }, [appointments, weekStart, weekEnd]);
+
+  // Calcular resumo semanal
+  const weeklySummary = useMemo(() => {
+    const summary: Record<string, { count: number; total: number }> = {};
+    let totalConfirmed = 0;
+    weekAppointments.forEach((a: any) => {
+      if (a.status === "confirmed") {
+        const serviceName = a.service?.name || "Serviço desconhecido";
+        if (!summary[serviceName]) summary[serviceName] = { count: 0, total: 0 };
+        summary[serviceName].count++;
+        summary[serviceName].total += Number(a.service?.price || 0);
+        totalConfirmed += Number(a.service?.price || 0);
+      }
+    });
+    return { services: summary, totalConfirmed };
+  }, [weekAppointments]);
 
   const utils = trpc.useUtils();
   const updateMut = trpc.appointments.updateStatus.useMutation({
@@ -145,13 +180,41 @@ export default function BarberPanel() {
           <div>
             <h1 className="font-serif text-2xl font-bold text-foreground">Minha Agenda</h1>
             {myBarber && <p className="text-muted-foreground text-sm mt-0.5">{myBarber.name}</p>}
+            <p className="text-muted-foreground text-xs mt-1">
+              Semana de {weekStart.toLocaleDateString('pt-BR')} a {new Date(weekEnd.getTime() - 86400000).toLocaleDateString('pt-BR')}
+            </p>
           </div>
-          <Dialog open={showBlock} onOpenChange={setShowBlock}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="bg-card border-border gap-2">
-                <Lock className="w-4 h-4" /> Bloquear Horário
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setWeekOffset(weekOffset - 1)}
+              className="bg-card border-border"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setWeekOffset(0)}
+              className="bg-card border-border"
+            >
+              Esta Semana
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setWeekOffset(weekOffset + 1)}
+              className="bg-card border-border"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+            <Dialog open={showBlock} onOpenChange={setShowBlock}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-card border-border gap-2">
+                  <Lock className="w-4 h-4" /> Bloquear Horário
+                </Button>
+              </DialogTrigger>
             <DialogContent className="bg-card border-border">
               <DialogHeader>
                 <DialogTitle className="font-serif text-foreground">Bloquear Horário</DialogTitle>
@@ -183,9 +246,30 @@ export default function BarberPanel() {
                   </Button>
                 </div>
               </form>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
+
+        {/* Resumo Semanal */}
+        {!isLoading && Object.keys(weeklySummary.services).length > 0 && (
+          <div className="mb-6 bg-card border border-border rounded-xl p-4">
+            <h2 className="font-semibold text-foreground mb-3">Resumo da Semana</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {Object.entries(weeklySummary.services).map(([service, data]) => (
+                <div key={service} className="bg-background rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">{service}</p>
+                  <p className="text-sm font-semibold text-foreground">{data.count} atendimento{data.count > 1 ? 's' : ''}</p>
+                  <p className="text-xs text-primary">R$ {data.total.toFixed(2)}</p>
+                </div>
+              ))}
+              <div className="bg-primary/10 border border-primary/40 rounded-lg p-3">
+                <p className="text-xs text-muted-foreground">Total Confirmado</p>
+                <p className="text-sm font-semibold text-primary">R$ {weeklySummary.totalConfirmed.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {!myBarber ? (
           <div className="text-center py-12 text-muted-foreground">
@@ -195,9 +279,9 @@ export default function BarberPanel() {
           </div>
         ) : isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-        ) : appointments && appointments.length > 0 ? (
+        ) : weekAppointments && weekAppointments.length > 0 ? (
           <div className="space-y-3">
-            {appointments.map((appt: any) => {
+            {weekAppointments.map((appt: any) => {
               const st = STATUS_LABELS[appt.status] ?? STATUS_LABELS.pending;
               return (
                 <div key={appt.id} className="bg-card border border-border rounded-xl p-4">
@@ -259,7 +343,7 @@ export default function BarberPanel() {
         ) : (
           <div className="text-center py-12 text-muted-foreground">
             <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p>Nenhum agendamento encontrado.</p>
+            <p>Nenhum agendamento encontrado para esta semana.</p>
           </div>
         )}
       </main>

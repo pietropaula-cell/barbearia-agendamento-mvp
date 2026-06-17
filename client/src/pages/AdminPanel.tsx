@@ -32,12 +32,14 @@ import {
   Link as LinkIcon,
   Eye,
   EyeOff,
+  MessageCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { PasswordInput } from "@/components/ui/password-input";
+import { WhatsAppConfigTab } from "@/components/WhatsAppConfigTab";
 
 function Sidebar({ active, onTabChange }: { active: string; onTabChange: (tab: string) => void }) {
   const { user, logout } = useAuth();
@@ -46,6 +48,7 @@ function Sidebar({ active, onTabChange }: { active: string; onTabChange: (tab: s
   const nav = [
     { id: "barbearias", label: "Barbearias", icon: Store },
     { id: "usuarios", label: "Usuários", icon: Users },
+    { id: "whatsapp", label: "WhatsApp", icon: MessageCircle },
   ];
 
   return (
@@ -619,6 +622,12 @@ export default function AdminPanel() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="barbearias"><BarbershopsTab /></TabsContent>
           <TabsContent value="usuarios"><UsersTab /></TabsContent>
+          {activeTab === "whatsapp" && (
+            <div>
+              <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Configuracao WhatsApp</h2>
+              <p className="text-muted-foreground mb-4">Selecione uma barbearia para configurar as notificacoes WhatsApp</p>
+            </div>
+          )}
         </Tabs>
       </main>
     </div>

@@ -10,10 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Scissors, Users, Plus, Pencil, Trash2, LogOut, Store, Loader2,
-  Calendar, Clock, DollarSign, Link as LinkIcon, ChevronLeft, ChevronRight
+  Calendar, Clock, DollarSign, Link as LinkIcon, ChevronLeft, ChevronRight, MessageCircle
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PasswordInput } from "@/components/ui/password-input";
+
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";

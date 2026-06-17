@@ -36,6 +36,9 @@ import {
   updateUserPassword,
   getUserById,
   upsertCustomer,
+  getWhatsappConfig,
+  upsertWhatsappConfig,
+  deleteWhatsappConfig,
 } from "./db";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -143,13 +146,13 @@ export const appRouter = router({
   }),
   barbershops: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      requireRole(ctx.user.role, ["admin", "owner"]);
+      requireRole(ctx.user.role, ["admin", "owner", "barber"]);
       if (ctx.user.role === "admin") return getAllBarbershops();
       if (ctx.user.barbershopId) { const b = await getBarbershopById(ctx.user.barbershopId); return b ? [b] : []; }
       return [];
     }),
     getById: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
-      requireRole(ctx.user.role, ["admin", "owner"]);
+      requireRole(ctx.user.role, ["admin", "owner", "barber"]);
       const b = await getBarbershopById(input.id);
       if (!b) throw new TRPCError({ code: "NOT_FOUND" });
       requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, b.id);
@@ -457,6 +460,37 @@ export const appRouter = router({
         requireBarbershopAccess(ctx.user.role, ctx.user.barbershopId, input.barbershopId);
         
         await updateBarbershop(input.barbershopId, { accentColor: input.accentColor });
+        return { success: true };
+      }),
+  }),
+  whatsapp: router({
+    getConfig: protectedProcedure
+      .input(z.object({ barbershopId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        return await getWhatsappConfig(input.barbershopId);
+      }),
+    upsertConfig: protectedProcedure
+      .input(
+        z.object({
+          barbershopId: z.number(),
+          phoneNumber: z.string().min(1),
+          apiKey: z.string().min(1),
+          enabled: z.boolean(),
+          sendConfirmation: z.boolean(),
+          sendReminder: z.boolean(),
+          reminderMinutesBefore: z.number().min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        return await upsertWhatsappConfig(input);
+      }),
+    deleteConfig: protectedProcedure
+      .input(z.object({ barbershopId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        requireRole(ctx.user.role, ["admin"]);
+        await deleteWhatsappConfig(input.barbershopId);
         return { success: true };
       }),
   }),

@@ -15,6 +15,8 @@ import {
   InsertUser,
   Service,
   User,
+  WhatsappConfig,
+  InsertWhatsappConfig,
   appointments,
   barberSchedules,
   barbers,
@@ -22,6 +24,7 @@ import {
   customers,
   services,
   users,
+  whatsappConfigs,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -508,4 +511,50 @@ export async function getBarberSlotsOnDate(
         lte(appointments.startsAt, dayEnd)
       )
     );
+}
+
+// ─── WhatsApp Configuration ───────────────────────────────────────────────────
+
+export async function getWhatsappConfig(barbershopId: number): Promise<WhatsappConfig | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select()
+    .from(whatsappConfigs)
+    .where(eq(whatsappConfigs.barbershopId, barbershopId))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function upsertWhatsappConfig(config: InsertWhatsappConfig & { barbershopId: number }): Promise<WhatsappConfig> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await getWhatsappConfig(config.barbershopId);
+  
+  if (existing) {
+    await db
+      .update(whatsappConfigs)
+      .set({
+        phoneNumber: config.phoneNumber,
+        apiKey: config.apiKey,
+        enabled: config.enabled,
+        sendConfirmation: config.sendConfirmation,
+        sendReminder: config.sendReminder,
+        reminderMinutesBefore: config.reminderMinutesBefore,
+        updatedAt: new Date(),
+      })
+      .where(eq(whatsappConfigs.barbershopId, config.barbershopId));
+    
+    return (await getWhatsappConfig(config.barbershopId))!;
+  } else {
+    await db.insert(whatsappConfigs).values(config);
+    return (await getWhatsappConfig(config.barbershopId))!;
+  }
+}
+
+export async function deleteWhatsappConfig(barbershopId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(whatsappConfigs).where(eq(whatsappConfigs.barbershopId, barbershopId));
 }

@@ -122,3 +122,20 @@ export const appointments = mysqlTable("appointments", {
 
 export type Appointment = typeof appointments.$inferSelect;
 export type InsertAppointment = typeof appointments.$inferInsert;
+
+// ─── WhatsApp Configuration ───────────────────────────────────────────────────
+export const whatsappConfigs = mysqlTable("whatsapp_configs", {
+  id: int("id").autoincrement().primaryKey(),
+  barbershopId: int("barbershopId").notNull().unique(),
+  phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
+  apiKey: varchar("apiKey", { length: 255 }).notNull(),
+  enabled: boolean("enabled").default(false).notNull(),
+  sendConfirmation: boolean("sendConfirmation").default(true).notNull(),
+  sendReminder: boolean("sendReminder").default(true).notNull(),
+  reminderMinutesBefore: int("reminderMinutesBefore").default(60).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WhatsappConfig = typeof whatsappConfigs.$inferSelect;
+export type InsertWhatsappConfig = typeof whatsappConfigs.$inferInsert;

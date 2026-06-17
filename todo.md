@@ -195,3 +195,12 @@
 - [ ] Adicionar tela de troca de senha para o usuário logado (senha atual, nova senha, confirmação)
 - [ ] Adicionar ícone "olhinho" para mostrar/ocultar senha em todos os campos de senha
 - [ ] Adicionar aba de pesquisa de agendamentos por telefone para o cliente (sem filtro = sem dados)
+
+## Correções e Novas Funcionalidades (Jun 2026 - Rodada 3)
+- [x] Corrigir erros 403 do BarberPanel
+- [x] Adicionar filtro por barbeiro no BarberPanel (igual ao OwnerPanel)
+- [x] Adicionar resumo semanal no BarberPanel (atendimentos por serviço, valor total confirmado)
+- [x] Adicionar/corrigir tela de trocar senha para usuário (acessível via "Meu Perfil")
+- [x] Criar tela de configuração WhatsApp para admin (API key, número)
+- [ ] Implementar envio de mensagem WhatsApp ao agendar (confirmação)
+- [ ] Implementar envio de mensagem WhatsApp 1h antes do agendamento (lembrete)
