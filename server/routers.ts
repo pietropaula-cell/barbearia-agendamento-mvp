@@ -45,6 +45,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
+import { sendConfirmationMessage } from "./whatsapp-service";
 
 function requireRole(userRole: string | undefined, allowed: string[]): void {
   if (!userRole || !allowed.includes(userRole)) {
@@ -397,6 +398,18 @@ export const appRouter = router({
         if (conflict) throw new TRPCError({ code: "CONFLICT", message: "Horário não disponível. Por favor, escolha outro horário." });
         const customer = await upsertCustomer({ name: input.customerName, phone: input.customerPhone });
         const id = await createAppointment({ barbershopId: input.barbershopId, barberId: input.barberId, serviceId: input.serviceId, customerId: customer.id, startsAt, endsAt, status: "pending" });
+        
+        // Enviar mensagem de confirmação via WhatsApp (não bloqueia a resposta)
+        sendConfirmationMessage(
+          input.barbershopId,
+          input.barberId,
+          input.serviceId,
+          customer.name,
+          customer.phone,
+          startsAt,
+          endsAt
+        ).catch((err) => console.error("[WhatsApp] Erro ao enviar confirmação:", err));
+        
         return { id, startsAt, endsAt, service: { name: service.name, price: service.price, durationMin: service.durationMin }, customer: { name: customer.name, phone: customer.phone } };
       }),
 
