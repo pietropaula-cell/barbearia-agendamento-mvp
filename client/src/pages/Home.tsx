@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 // import { getLoginUrl } from "@/const";
-import { Scissors, Calendar, Clock, Star, ChevronRight, MapPin } from "lucide-react";
+import { Scissors, Calendar, Clock, Star, ChevronRight, MapPin, Navigation } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -146,9 +146,18 @@ export default function Home() {
                     {shop.name}
                   </h3>
                   {shop.address && (
-                    <p className="text-muted-foreground text-sm flex items-center gap-1.5 mb-4">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {shop.address}
-                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-muted-foreground text-sm flex items-center gap-1.5 flex-1">
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {shop.address}
+                      </p>
+                      <button
+                        onClick={() => shop.address && window.open(`https://www.google.com/maps/search/${encodeURIComponent(shop.address)}`, "_blank")}
+                        className="ml-2 p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex-shrink-0"
+                        title="Abrir no Google Maps"
+                      >
+                        <Navigation className="w-4 h-4" />
+                      </button>
+                    </div>
                   )}
 
                   <Link href={`/agendar/${shop.slug}`}>

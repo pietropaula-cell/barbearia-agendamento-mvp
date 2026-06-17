@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scissors, ChevronLeft, ChevronRight, Check, User, Clock, Calendar, DollarSign, Phone, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Scissors, ChevronLeft, ChevronRight, Check, User, Clock, Calendar, DollarSign, Phone, CheckCircle, AlertCircle, Loader2, Navigation } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -171,7 +171,18 @@ export default function Booking() {
           <div className="bg-background rounded-xl p-5 text-left space-y-3 mb-8">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Barbearia</span>
-              <span className="font-medium text-foreground">{barbershop.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-foreground">{barbershop.name}</span>
+                {barbershop.address && (
+                  <button
+                    onClick={() => barbershop.address && window.open(`https://www.google.com/maps/search/${encodeURIComponent(barbershop.address)}`, "_blank")}
+                    className="p-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                    title="Abrir no Google Maps"
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Barbeiro</span>
