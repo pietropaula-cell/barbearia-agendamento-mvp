@@ -167,10 +167,10 @@
 - [ ] Dashboard do cliente com agendamentos
 
 ## Busca de Agendamento por Telefone (Nova)
-- [ ] Adicionar opção de busca por telefone na página pública
-- [ ] Permitir cliente buscar agendamentos pelo número de telefone
-- [ ] Exibir agendamentos encontrados com data, hora e barbeiro
-- [ ] Opção de cancelar agendamento diretamente
+- [x] Adicionar opção de busca por telefone na página pública
+- [x] Permitir cliente buscar agendamentos pelo número de telefone
+- [x] Exibir agendamentos encontrados com data, hora e barbeiro
+- [x] Opção de cancelar agendamento diretamente
 
 ## Botão BarberBook (Nova)
 - [ ] Tornar o logo "BarberBook" um botão para voltar à página inicial

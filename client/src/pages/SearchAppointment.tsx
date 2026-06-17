@@ -13,7 +13,7 @@ export default function SearchAppointment() {
   const [phone, setPhone] = useState("");
   const [searchPhone, setSearchPhone] = useState<string | null>(null);
 
-  const { data: appointments, isLoading, refetch } = trpc.booking.searchByPhone.useQuery(
+  const { data: appointments, isLoading, isError, error, refetch } = trpc.booking.searchByPhone.useQuery(
     { phone: searchPhone! },
     { enabled: !!searchPhone }
   );
@@ -106,6 +106,17 @@ export default function SearchAppointment() {
               <div className="flex justify-center py-12">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
+            ) : isError ? (
+              <Card className="bg-card border-border p-8 text-center">
+                <Phone className="w-12 h-12 text-destructive mx-auto mb-4 opacity-50" />
+                <p className="text-foreground font-medium mb-1">Erro ao buscar agendamentos</p>
+                <p className="text-muted-foreground text-sm mb-4">
+                  {error?.message || "Ocorreu um erro ao buscar seus agendamentos. Tente novamente."}
+                </p>
+                <Button onClick={() => refetch()} variant="outline" className="bg-card border-border">
+                  Tentar Novamente
+                </Button>
+              </Card>
             ) : appointments && appointments.length > 0 ? (
               <div className="space-y-4">
                 <h2 className="font-serif text-xl font-bold text-foreground mb-4">
