@@ -1,0 +1,1 @@
+ALTER TABLE `whatsapp_configs` ADD `phoneNumberId` varchar(100);

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 export function WhatsAppConfigTab() {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumberId, setPhoneNumberId] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [sendConfirmation, setSendConfirmation] = useState(true);
@@ -71,6 +72,7 @@ export function WhatsAppConfigTab() {
   useEffect(() => {
     if (config) {
       setPhoneNumber(config.phoneNumber);
+      setPhoneNumberId(config.phoneNumberId || "");
       setApiKey(config.apiKey);
       setEnabled(config.enabled);
       setSendConfirmation(config.sendConfirmation);
@@ -88,12 +90,13 @@ export function WhatsAppConfigTab() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumber || !apiKey) {
+    if (!phoneNumber || !apiKey || !phoneNumberId) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
     upsertMut.mutate({
       phoneNumber,
+      phoneNumberId,
       apiKey,
       enabled,
       sendConfirmation,
@@ -181,7 +184,11 @@ export function WhatsAppConfigTab() {
                 <p className="text-foreground font-medium">{phoneNumber}</p>
               </div>
               <div>
-                <Label className="text-muted-foreground text-sm">Chave API</Label>
+                <Label className="text-muted-foreground text-sm">Phone Number ID</Label>
+                <p className="text-foreground font-medium">{phoneNumberId}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-sm">Access Token</Label>
                 <p className="text-foreground font-medium">••••••••{apiKey.slice(-4)}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -247,6 +254,22 @@ export function WhatsAppConfigTab() {
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     Inclua o código do país (ex: +55 para Brasil)
+                  </p>
+                </div>
+
+                <div>
+                  <Label className="text-foreground mb-1.5 block">Phone Number ID (WhatsApp Business API) *</Label>
+                  <Input
+                    type="text"
+                    value={phoneNumberId}
+                    onChange={(e) => setPhoneNumberId(e.target.value)}
+                    placeholder="Seu Phone Number ID"
+                    className="bg-background border-border"
+                    required
+                    disabled={upsertMut.isPending}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Obtenha no Meta Business Manager → WhatsApp → Números de Telefone
                   </p>
                 </div>
 

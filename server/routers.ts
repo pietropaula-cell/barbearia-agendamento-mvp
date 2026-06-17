@@ -488,6 +488,7 @@ export const appRouter = router({
       .input(
         z.object({
           phoneNumber: z.string().min(1),
+          phoneNumberId: z.string().min(1),
           apiKey: z.string().min(1),
           enabled: z.boolean(),
           sendConfirmation: z.boolean(),

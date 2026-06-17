@@ -128,6 +128,7 @@ export const whatsappConfigs = mysqlTable("whatsapp_configs", {
   id: int("id").autoincrement().primaryKey(),
   barbershopId: int("barbershopId").notNull().unique(),
   phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
+  phoneNumberId: varchar("phoneNumberId", { length: 100 }),
   apiKey: varchar("apiKey", { length: 255 }).notNull(),
   enabled: boolean("enabled").default(false).notNull(),
   sendConfirmation: boolean("sendConfirmation").default(true).notNull(),

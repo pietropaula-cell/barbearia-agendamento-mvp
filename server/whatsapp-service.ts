@@ -1,5 +1,6 @@
 import { getWhatsappConfig, getBarbershopById, getBarberById, getServiceById } from "./db";
 import { formatBR } from "@/lib/dateUtils";
+import { createWhatsAppBusinessAPI } from "./whatsapp-business-api";
 
 /**
  * Gera URL do Google Maps para um endereço
@@ -94,8 +95,7 @@ export async function formatReminderMessage(
 }
 
 /**
- * Envia uma mensagem WhatsApp usando a API configurada
- * Suporta Twilio ou qualquer API compatível
+ * Envia uma mensagem WhatsApp usando a WhatsApp Business API
  */
 export async function sendWhatsappMessage(
   barbershopId: number,
@@ -109,22 +109,31 @@ export async function sendWhatsappMessage(
       return { success: false, error: "WhatsApp não está configurado ou desabilitado" };
     }
 
-    // Validar se o número de telefone tem o formato correto
-    if (!phoneNumber.startsWith("+")) {
-      phoneNumber = "+55" + phoneNumber.replace(/\D/g, "");
+    // Validar credenciais da WhatsApp Business API
+    if (!config.phoneNumberId || !config.apiKey) {
+      console.warn("[WhatsApp] Credenciais da WhatsApp Business API não configuradas");
+      // Simular envio se credenciais não estiverem configuradas
+      const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      return { success: true, messageId };
     }
 
-    // Aqui você pode integrar com diferentes provedores de WhatsApp
-    // Por enquanto, vamos simular o envio
-    // Em produção, você integraria com Twilio, WhatsApp Business API, etc.
+    // Criar instância da API
+    const whatsappAPI = createWhatsAppBusinessAPI({
+      phoneNumberId: config.phoneNumberId,
+      accessToken: config.apiKey,
+      businessAccountId: "", // Não é necessário para envio de mensagens
+    });
 
-    console.log(`[WhatsApp] Enviando mensagem para ${phoneNumber}`);
-    console.log(`[WhatsApp] Mensagem: ${message}`);
+    // Enviar mensagem
+    const result = await whatsappAPI.sendTextMessage(phoneNumber, message);
 
-    // Simular envio bem-sucedido
-    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-    return { success: true, messageId };
+    if (result.success) {
+      console.log(`[WhatsApp] Mensagem enviada com sucesso para ${phoneNumber}`);
+      return { success: true, messageId: result.messageId };
+    } else {
+      console.error(`[WhatsApp] Erro ao enviar mensagem: ${result.error}`);
+      return { success: false, error: result.error };
+    }
   } catch (error) {
     console.error("[WhatsApp] Erro ao enviar mensagem:", error);
     return {
