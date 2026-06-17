@@ -493,7 +493,10 @@ export const appRouter = router({
     getConfig: protectedProcedure
       .query(async ({ ctx }) => {
         requireRole(ctx.user.role, ["admin"]);
-        return await getWhatsappConfig(0);
+        if (!ctx.user.barbershopId) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem uma barbearia associada" });
+        }
+        return await getWhatsappConfig(ctx.user.barbershopId);
       }),
     upsertConfig: protectedProcedure
       .input(
@@ -515,9 +518,12 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         requireRole(ctx.user.role, ["admin"]);
+        if (!ctx.user.barbershopId) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem uma barbearia associada" });
+        }
         return await upsertWhatsappConfig({
           ...input,
-          barbershopId: 0,
+          barbershopId: ctx.user.barbershopId,
           apiKey: input.apiKey || "",
           phoneNumberId: input.phoneNumberId || "",
         });
@@ -525,7 +531,10 @@ export const appRouter = router({
     deleteConfig: protectedProcedure
       .mutation(async ({ ctx }) => {
         requireRole(ctx.user.role, ["admin"]);
-        await deleteWhatsappConfig(0);
+        if (!ctx.user.barbershopId) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem uma barbearia associada" });
+        }
+        await deleteWhatsappConfig(ctx.user.barbershopId);
         return { success: true };
       }),
     testConnection: protectedProcedure
