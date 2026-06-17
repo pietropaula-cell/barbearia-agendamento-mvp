@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Scissors, Users, Plus, Pencil, Trash2, LogOut, Store, Loader2,
-  Calendar, Clock, DollarSign, Link as LinkIcon
+  Calendar, Clock, DollarSign, Link as LinkIcon, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -550,7 +551,11 @@ function ServicesTab({ barbershopId }: { barbershopId: number }) {
 
 // ── Agenda Tab ───────────────────────────────────────────────────────────────
 function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string }) {
+  const [selectedBarberId, setSelectedBarberId] = useState<number | null>(null);
+  const [weekOffset, setWeekOffset] = useState(0);
+
   const { data: appointments, isLoading } = trpc.appointments.listByBarbershop.useQuery({ barbershopId });
+  const { data: barbers } = trpc.barbers.list.useQuery({ barbershopId });
   const utils = trpc.useUtils();
 
   const updateMut = trpc.appointments.updateStatus.useMutation({
@@ -558,10 +563,56 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
     onError: (e) => toast.error(e.message),
   });
 
+  // Calcular semana atual
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+  weekStart.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  weekEnd.setHours(23, 59, 59, 999);
+
+  // Filtrar agendamentos por barbeiro e semana
+  const filteredAppointments = appointments?.filter((appt: any) => {
+    const apptDate = new Date(appt.startsAt);
+    const matchesBarbeiro = !selectedBarberId || appt.barberId === selectedBarberId;
+    const matchesWeek = apptDate >= weekStart && apptDate <= weekEnd;
+    return matchesBarbeiro && matchesWeek;
+  }) ?? [];
+
+  // Agrupar por dia
+  const appointmentsByDay: Record<string, any[]> = {};
+  filteredAppointments.forEach((appt: any) => {
+    const date = formatDateBR(appt.startsAt);
+    if (!appointmentsByDay[date]) appointmentsByDay[date] = [];
+    appointmentsByDay[date].push(appt);
+  });
+
+  // Ordenar dias
+  const sortedDays = Object.keys(appointmentsByDay).sort((a, b) => {
+    const dateA = new Date(appointmentsByDay[a][0].startsAt);
+    const dateB = new Date(appointmentsByDay[b][0].startsAt);
+    return dateA.getTime() - dateB.getTime();
+  });
+
+  // Ordenar agendamentos dentro de cada dia por hora
+  sortedDays.forEach(day => {
+    appointmentsByDay[day].sort((a: any, b: any) =>
+      new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+    );
+  });
+
+  // Formatar período da semana
+  const weekStartStr = formatDateBR(weekStart);
+  const weekEndStr = formatDateBR(weekEnd);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif text-2xl font-bold text-foreground">Agenda</h2>
+        <div>
+          <h2 className="font-serif text-2xl font-bold text-foreground">Agenda</h2>
+          <p className="text-sm text-muted-foreground mt-1">{weekStartStr} a {weekEndStr}</p>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -583,11 +634,57 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
         </div>
       </div>
 
+      {/* Filtro por barbeiro e navegação de semana */}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setWeekOffset(weekOffset - 1)}
+            className="bg-card border-border"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setWeekOffset(0)}
+            className="bg-card border-border"
+          >
+            Esta Semana
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setWeekOffset(weekOffset + 1)}
+            className="bg-card border-border"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <Select value={selectedBarberId?.toString() ?? ""} onValueChange={(v) => setSelectedBarberId(v ? parseInt(v) : null)}>
+          <SelectTrigger className="w-48 bg-card border-border">
+            <SelectValue placeholder="Filtrar por barbeiro..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Todos os barbeiros</SelectItem>
+            {barbers?.map((b: any) => (
+              <SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-      ) : appointments && appointments.length > 0 ? (
-        <div className="space-y-3">
-          {appointments.map((appt: any) => {
+      ) : sortedDays.length > 0 ? (
+        <div className="space-y-6">
+          {sortedDays.map((day) => (
+            <div key={day}>
+              <h3 className="font-semibold text-foreground mb-3">{day}</h3>
+              <div className="space-y-2">
+                {appointmentsByDay[day].map((appt: any) => {
             const st = STATUS_LABELS[appt.status] ?? STATUS_LABELS.pending;
             return (
               <div key={appt.id} className="bg-card border border-border rounded-xl p-4">
@@ -638,12 +735,15 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
                 </div>
               </div>
             );
-          })}
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p>Nenhum agendamento encontrado.</p>
+          <p>Nenhum agendamento encontrado para este período.</p>
         </div>
       )}
     </div>

@@ -39,7 +39,11 @@ export default function BarberPanel() {
     { enabled: !!barbershopId }
   );
   // Find barber matching this user
-  const myBarber = barbers?.find((b: any) => b.userId === user?.id) ?? barbers?.[0];
+  const myBarber = barbers?.find((b: any) => b.userId === user?.id);
+  
+  if (!myBarber && barbers && barbers.length > 0) {
+    console.warn("Barbeiro não encontrado para este usuário. User ID:", user?.id, "Barbeiros:", barbers);
+  }
 
   const { data: appointments, isLoading } = trpc.appointments.listMine.useQuery(
     { barberId: myBarber?.id ?? 0 },
