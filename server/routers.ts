@@ -56,6 +56,7 @@ function requireBarbershopAccess(
 ): void {
   if (userRole === "admin") return;
   if (userRole === "owner" && userBarbershopId === targetBarbershopId) return;
+  if (userRole === "barber" && userBarbershopId === targetBarbershopId) return;
   throw new TRPCError({ code: "FORBIDDEN", message: "Acesso não autorizado a esta barbearia." });
 }
 
