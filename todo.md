@@ -214,6 +214,6 @@
 ## Correções e Melhorias (Jun 2026 - Rodada 4)
 - [x] Melhorar exibição de foto da fachada na listagem de barbearias
 - [x] Sincronizar exclusão de usuários entre admin e owner (mesmo usuário em ambas as páginas)
-- [x] Adicionar campos email e senha na criação/edição de barbeiro (tela do owner)
+- [x] Adicionar campos email e senha na criação/edição de barbeiro (tela do owner) - agora com opção de alterar senha na edição
 - [x] Implementar trocar senha para qualquer usuário logado (com senha antiga)
 - [x] Implementar trocar senha para admin (sem senha antiga, para usuários esquecidos)

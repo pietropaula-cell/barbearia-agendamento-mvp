@@ -97,6 +97,7 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const utils = trpc.useUtils();
@@ -175,7 +176,7 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
         <Label className="text-foreground mb-1.5 block">Bio</Label>
         <Input value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Especialidades, experiência..." className="bg-background border-border" />
       </div>
-      {!initial && (
+      {!initial ? (
         <>
           <div className="border-t border-border pt-4">
             <p className="text-sm text-muted-foreground mb-3">Credenciais de acesso do barbeiro</p>
@@ -192,6 +193,26 @@ function BarberForm({ barbershopId, initial, onSuccess, onCancel }: {
             <Label className="text-foreground mb-1.5 block">Confirmar Senha *</Label>
             <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repita a senha" className="bg-background border-border" />
           </div>
+        </>
+      ) : (
+        <>
+          <div className="border-t border-border pt-4">
+            <button type="button" onClick={() => { setShowPasswordFields(!showPasswordFields); setPassword(""); setConfirmPassword(""); }} className="text-sm text-primary hover:underline font-medium">
+              {showPasswordFields ? "Cancelar alteracao" : "Alterar senha do barbeiro"}
+            </button>
+          </div>
+          {showPasswordFields && (
+            <>
+              <div>
+                <Label className="text-foreground mb-1.5 block">Nova Senha *</Label>
+                <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimo 6 caracteres" className="bg-background border-border" />
+              </div>
+              <div>
+                <Label className="text-foreground mb-1.5 block">Confirmar Senha *</Label>
+                <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repita a senha" className="bg-background border-border" />
+              </div>
+            </>
+          )}
         </>
       )}
       <div>
