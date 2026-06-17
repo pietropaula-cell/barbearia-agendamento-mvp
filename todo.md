@@ -154,9 +154,9 @@
 - [x] Ajustar timezone para o horário local correto
 
 ## Upload de Fachada
-- [ ] Corrigir upload de fachada não aparecendo no formulário
-- [ ] Exibir fachada abaixo do nome da barbearia na página pública
-- [ ] Exibir fachada durante o agendamento
+- [x] Corrigir upload de fachada não aparecendo no formulário (agora usa campo fachadaUrl)
+- [x] Exibir fachada abaixo do nome da barbearia na página pública
+- [x] Exibir fachada durante o agendamento
 
 ## Cadastro de Cliente (Nova)
 - [ ] Criar página de cadastro de cliente (telefone + senha)

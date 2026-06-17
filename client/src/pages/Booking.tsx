@@ -244,7 +244,7 @@ export default function Booking() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header with Facade */}
       <header className="border-b border-border/50 bg-background/90 backdrop-blur-md sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
@@ -260,6 +260,14 @@ export default function Booking() {
           </Badge>
         </div>
       </header>
+      
+      {/* Facade Image */}
+      {barbershop.fachadaUrl && (
+        <div className="w-full h-48 bg-muted overflow-hidden relative">
+          <img src={barbershop.fachadaUrl} alt={barbershop.name} className="w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+        </div>
+      )}
 
       <div className="container max-w-lg mx-auto py-10 page-enter">
         <StepIndicator current={step} total={5} accentColor={accentColor} />
