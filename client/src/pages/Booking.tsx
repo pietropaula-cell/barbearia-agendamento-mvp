@@ -510,10 +510,12 @@ export default function Booking() {
                 <Label htmlFor="phone" className="text-foreground mb-1.5 block">Telefone / WhatsApp</Label>
                 <Input
                   id="phone"
-                  placeholder="Ex: (11) 99999-9999"
+                  placeholder="11999999999"
                   value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))}
                   className="bg-card border-border text-foreground placeholder:text-muted-foreground"
+                  type="tel"
+                  inputMode="numeric"
                 />
               </div>
             </div>

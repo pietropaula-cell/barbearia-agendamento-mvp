@@ -28,12 +28,19 @@ export default function SearchAppointment() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    // Remove todos os caracteres que não são números
     const cleaned = phone.replace(/\D/g, "");
     if (cleaned.length < 8) {
       toast.error("Digite um telefone válido (mínimo 8 dígitos)");
       return;
     }
     setSearchPhone(cleaned);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Permite apenas números
+    const value = e.target.value.replace(/\D/g, "");
+    setPhone(value);
   };
 
   const statusLabel = (s: string) => {
@@ -81,11 +88,12 @@ export default function SearchAppointment() {
               <div className="flex gap-2">
                 <Input
                   type="tel"
-                  placeholder="(11) 99999-9999"
+                  placeholder="11999999999"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={handlePhoneChange}
                   className="bg-background border-border"
                   required
+                  inputMode="numeric"
                 />
                 <Button type="submit" disabled={isLoading} className="gap-2 shrink-0">
                   {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4" />}
