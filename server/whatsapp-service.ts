@@ -175,6 +175,52 @@ export async function formatReminderMessage(
 }
 
 /**
+ * Envia uma mensagem WhatsApp usando template (Twilio)
+ */
+export async function sendWhatsappTemplateMessage(
+  barbershopId: number,
+  phoneNumber: string,
+  contentSid: string,
+  contentVariables?: Record<string, string>
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    const config = await getWhatsappConfig(barbershopId);
+
+    if (!config || !config.enabled) {
+      return { success: false, error: "WhatsApp não está configurado ou desabilitado" };
+    }
+
+    const provider = (config as any).provider || "whatsapp_business";
+
+    if (provider !== "twilio") {
+      return { success: false, error: "Templates só funcionam com Twilio" };
+    }
+
+    if (!(config as any).twilioAccountSid || !(config as any).twilioAuthToken || !(config as any).twilioWhatsappNumber) {
+      console.error("[Twilio] Credenciais do Twilio não configuradas");
+      return { success: false, error: "Credenciais do Twilio não configuradas" };
+    }
+
+    return sendTwilioWhatsAppMessage(
+      {
+        accountSid: (config as any).twilioAccountSid,
+        authToken: (config as any).twilioAuthToken,
+        whatsappNumber: (config as any).twilioWhatsappNumber,
+        contentSid,
+        contentVariables,
+      } as any,
+      phoneNumber
+    );
+  } catch (error) {
+    console.error("[WhatsApp] Erro ao enviar template:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Erro desconhecido",
+    };
+  }
+}
+
+/**
  * Envia uma mensagem WhatsApp usando o provider configurado (Twilio ou WhatsApp Business API)
  */
 export async function sendWhatsappMessage(
@@ -204,7 +250,7 @@ export async function sendWhatsappMessage(
           accountSid: (config as any).twilioAccountSid,
           authToken: (config as any).twilioAuthToken,
           whatsappNumber: (config as any).twilioWhatsappNumber,
-        },
+        } as any,
         phoneNumber,
         message
       );

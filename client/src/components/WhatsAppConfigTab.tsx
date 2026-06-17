@@ -30,6 +30,8 @@ export function WhatsAppConfigTab() {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [reminderMessage, setReminderMessage] = useState("");
+  const [confirmationContentSid, setConfirmationContentSid] = useState("");
+  const [reminderContentSid, setReminderContentSid] = useState("");
   const [isEditingTemplates, setIsEditingTemplates] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestResult, setShowTestResult] = useState(false);
@@ -100,6 +102,13 @@ export function WhatsAppConfigTab() {
       setConfirmationMessage(templates.confirmationMessage || "");
       setReminderMessage(templates.reminderMessage || "");
     }
+
+  useEffect(() => {
+    if (config && provider === "twilio") {
+      setConfirmationContentSid((config as any).confirmationContentSid || "");
+      setReminderContentSid((config as any).reminderContentSid || "");
+    }
+  }, [config, provider]);
   }, [templates]);
 
   const handleSave = () => {
@@ -127,6 +136,8 @@ export function WhatsAppConfigTab() {
       sendConfirmation,
       sendReminder,
       reminderMinutesBefore: reminderHoursBefore * 60,
+      confirmationContentSid: provider === "twilio" ? confirmationContentSid : undefined,
+      reminderContentSid: provider === "twilio" ? reminderContentSid : undefined,
     } as any);
   };
 
@@ -296,6 +307,32 @@ export function WhatsAppConfigTab() {
                       className="bg-background border-border"
                     />
                   </div>
+                  {provider === "twilio" && (
+                    <div className="pt-4 border-t border-border space-y-4">
+                      <h3 className="font-semibold text-foreground">Templates do Twilio</h3>
+                      <p className="text-xs text-muted-foreground">Crie templates no Twilio e copie o Content SID aqui</p>
+                      <div>
+                        <Label className="text-foreground mb-2 block">Content SID - Confirmação</Label>
+                        <Input
+                          value={confirmationContentSid}
+                          onChange={(e) => setConfirmationContentSid(e.target.value)}
+                          placeholder="HX..."
+                          className="bg-background border-border"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">Template para mensagens de confirmação</p>
+                      </div>
+                      <div>
+                        <Label className="text-foreground mb-2 block">Content SID - Lembrete</Label>
+                        <Input
+                          value={reminderContentSid}
+                          onChange={(e) => setReminderContentSid(e.target.value)}
+                          placeholder="HX..."
+                          className="bg-background border-border"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">Template para mensagens de lembrete</p>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 

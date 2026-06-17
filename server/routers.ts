@@ -505,6 +505,8 @@ export const appRouter = router({
           twilioAccountSid: z.string().optional(),
           twilioAuthToken: z.string().optional(),
           twilioWhatsappNumber: z.string().optional(),
+          confirmationContentSid: z.string().optional(),
+          reminderContentSid: z.string().optional(),
           enabled: z.boolean(),
           sendConfirmation: z.boolean(),
           sendReminder: z.boolean(),

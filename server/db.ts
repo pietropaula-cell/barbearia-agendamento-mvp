@@ -554,6 +554,12 @@ export async function upsertWhatsappConfig(config: InsertWhatsappConfig & { barb
         .set({
           phoneNumber: config.phoneNumber,
           apiKey: config.apiKey,
+          provider: config.provider,
+          twilioAccountSid: (config as any).twilioAccountSid,
+          twilioAuthToken: (config as any).twilioAuthToken,
+          twilioWhatsappNumber: (config as any).twilioWhatsappNumber,
+          confirmationContentSid: (config as any).confirmationContentSid,
+          reminderContentSid: (config as any).reminderContentSid,
           enabled: config.enabled,
           sendConfirmation: config.sendConfirmation,
           sendReminder: config.sendReminder,
@@ -563,13 +569,18 @@ export async function upsertWhatsappConfig(config: InsertWhatsappConfig & { barb
         .where(eq(whatsappConfigs.barbershopId, config.barbershopId));
     } else {
       // Use raw SQL to insert only the columns that exist
-      const sql = `INSERT INTO whatsapp_configs (barbershopId, provider, phoneNumber, phoneNumberId, apiKey, enabled, sendConfirmation, sendReminder, reminderMinutesBefore) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const sql = `INSERT INTO whatsapp_configs (barbershopId, provider, phoneNumber, phoneNumberId, apiKey, twilioAccountSid, twilioAuthToken, twilioWhatsappNumber, confirmationContentSid, reminderContentSid, enabled, sendConfirmation, sendReminder, reminderMinutesBefore) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       const values = [
         config.barbershopId,
         config.provider || "whatsapp_business",
         config.phoneNumber,
         config.phoneNumberId || null,
         config.apiKey || null,
+        (config as any).twilioAccountSid || null,
+        (config as any).twilioAuthToken || null,
+        (config as any).twilioWhatsappNumber || null,
+        (config as any).confirmationContentSid || null,
+        (config as any).reminderContentSid || null,
         config.enabled,
         config.sendConfirmation,
         config.sendReminder,

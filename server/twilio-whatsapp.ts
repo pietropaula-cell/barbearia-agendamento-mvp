@@ -17,12 +17,20 @@ export function createTwilioClient(config: TwilioConfig) {
 }
 
 /**
- * Envia mensagem WhatsApp via Twilio
+ * Interface para envio de template
+ */
+export interface TwilioTemplateConfig extends TwilioConfig {
+  contentSid?: string;
+  contentVariables?: Record<string, string>;
+}
+
+/**
+ * Envia mensagem WhatsApp via Twilio (suporta template e free-form)
  */
 export async function sendTwilioWhatsAppMessage(
-  config: TwilioConfig,
+  config: TwilioConfig | TwilioTemplateConfig,
   toPhoneNumber: string,
-  message: string
+  message?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     // Validar credenciais
@@ -40,15 +48,37 @@ export async function sendTwilioWhatsAppMessage(
     // Criar cliente Twilio
     const client = createTwilioClient(config);
 
-    // Enviar mensagem
-    const message_obj = await client.messages.create({
-      body: message,
-      from: fromNumber,
-      to: toNumber,
-    });
+    // Verificar se é um template
+    const templateConfig = config as TwilioTemplateConfig;
+    if (templateConfig.contentSid) {
+      // Enviar usando template
+      const message_obj = await client.messages.create({
+        contentSid: templateConfig.contentSid,
+        contentVariables: JSON.stringify(templateConfig.contentVariables || {}),
+        from: fromNumber,
+        to: toNumber,
+      });
 
-    console.log(`[Twilio] Mensagem enviada com sucesso. SID: ${message_obj.sid}`);
-    return { success: true, messageId: message_obj.sid };
+      console.log(`[Twilio] Template enviado com sucesso. SID: ${message_obj.sid}`);
+      return { success: true, messageId: message_obj.sid };
+    } else {
+      // Enviar como free-form (apenas na janela de 24 horas)
+      if (!message) {
+        return {
+          success: false,
+          error: "Mensagem ou template é obrigatório",
+        };
+      }
+
+      const message_obj = await client.messages.create({
+        body: message,
+        from: fromNumber,
+        to: toNumber,
+      });
+
+      console.log(`[Twilio] Mensagem enviada com sucesso. SID: ${message_obj.sid}`);
+      return { success: true, messageId: message_obj.sid };
+    }
   } catch (error) {
     console.error("[Twilio] Erro ao enviar mensagem:", error);
     return {

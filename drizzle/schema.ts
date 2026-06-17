@@ -144,6 +144,8 @@ export const whatsappConfigs = mysqlTable("whatsapp_configs", {
   reminderMinutesBefore: int("reminderMinutesBefore").default(60).notNull(),
   confirmationMessage: text("confirmationMessage"),
   reminderMessage: text("reminderMessage"),
+  confirmationContentSid: varchar("confirmationContentSid", { length: 255 }),
+  reminderContentSid: varchar("reminderContentSid", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
