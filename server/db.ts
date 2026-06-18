@@ -568,29 +568,27 @@ export async function upsertWhatsappConfig(config: InsertWhatsappConfig & { barb
         })
         .where(eq(whatsappConfigs.barbershopId, config.barbershopId));
     } else {
-      // Use raw SQL to insert only the columns that exist
-      const sql = `INSERT INTO whatsapp_configs (barbershopId, provider, phoneNumber, phoneNumberId, apiKey, twilioAccountSid, twilioAuthToken, twilioWhatsappNumber, confirmationContentSid, reminderContentSid, enabled, sendConfirmation, sendReminder, reminderMinutesBefore) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-      const values = [
-        config.barbershopId,
-        config.provider || "whatsapp_business",
-        config.phoneNumber,
-        config.phoneNumberId || null,
-        config.apiKey || null,
-        (config as any).twilioAccountSid || null,
-        (config as any).twilioAuthToken || null,
-        (config as any).twilioWhatsappNumber || null,
-        (config as any).confirmationContentSid || null,
-        (config as any).reminderContentSid || null,
-        config.enabled,
-        config.sendConfirmation,
-        config.sendReminder,
-        config.reminderMinutesBefore || 60,
-      ];
-      await (db as any).execute(sql, values);
+      // Insert new config using Drizzle
+      await db.insert(whatsappConfigs).values({
+        barbershopId: config.barbershopId,
+        provider: config.provider || "whatsapp_business",
+        phoneNumber: config.phoneNumber,
+        phoneNumberId: config.phoneNumberId || null,
+        apiKey: config.apiKey || null,
+        twilioAccountSid: (config as any).twilioAccountSid || null,
+        twilioAuthToken: (config as any).twilioAuthToken || null,
+        twilioWhatsappNumber: (config as any).twilioWhatsappNumber || null,
+        confirmationContentSid: (config as any).confirmationContentSid || null,
+        reminderContentSid: (config as any).reminderContentSid || null,
+        enabled: config.enabled,
+        sendConfirmation: config.sendConfirmation,
+        sendReminder: config.sendReminder,
+        reminderMinutesBefore: config.reminderMinutesBefore || 60,
+      });
     }
   } catch (error: any) {
-    console.warn("[WhatsApp Upsert] Error:", error.message);
-    // Silently fail on insert to allow basic operation
+    console.error("[WhatsApp Upsert] Error:", error.message, error);
+    throw new Error(`Failed to save WhatsApp config: ${error.message}`);
   }
   
   return (await getWhatsappConfig(config.barbershopId))!;
