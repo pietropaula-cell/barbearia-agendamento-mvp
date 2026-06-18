@@ -126,6 +126,7 @@ export default function Booking() {
   // ── Confirm booking ────────────────────────────────────────────────────────
   const handleConfirm = () => {
     if (!barbershop || !selectedBarberId || !selectedServiceId || !selectedDate || !selectedTime) return;
+    const phoneWithCountryCode = `+55${customerPhone.trim()}`;
     createMutation.mutate({
       barbershopId: barbershop.id,
       barberId: selectedBarberId,
@@ -133,7 +134,7 @@ export default function Booking() {
       date: selectedDate,
       time: selectedTime,
       customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
+      customerPhone: phoneWithCountryCode,
     });
   };
 
@@ -527,15 +528,18 @@ export default function Booking() {
               </div>
               <div>
                 <Label htmlFor="phone" className="text-foreground mb-1.5 block">Telefone / WhatsApp</Label>
-                <Input
-                  id="phone"
-                  placeholder="11999999999"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))}
-                  className="bg-card border-border text-foreground placeholder:text-muted-foreground"
-                  type="tel"
-                  inputMode="numeric"
-                />
+                <div className="flex items-center">
+                  <span className="bg-muted text-muted-foreground px-3 py-2 rounded-l-lg border border-border border-r-0">+55</span>
+                  <Input
+                    id="phone"
+                    placeholder="11999999999"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, ""))}
+                    className="bg-card border-border text-foreground placeholder:text-muted-foreground rounded-l-none"
+                    type="tel"
+                    inputMode="numeric"
+                  />
+                </div>
               </div>
             </div>
 
