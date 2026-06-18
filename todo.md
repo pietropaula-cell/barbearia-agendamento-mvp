@@ -239,8 +239,10 @@
 - [x] Renderizar WeeklyCalendar no BarberPanel mesmo quando sem agendamentos (exibir grade vazia)
 - [x] Renderizar WeeklyCalendar no OwnerPanel mesmo quando sem agendamentos (exibir grade vazia)
 - [x] Remover blocos legados escondidos (`false && ...`) do BarberPanel e OwnerPanel
+- [x] Adicionar interação ao calendário (clicar em agendamento para ver detalhes)
+- [x] Adicionar interação ao calendário (clicar em slot vazio para bloquear)
+- [ ] Testar responsividade do calendário em telas pequenas
+- [ ] Configurar Vitest para descobrir testes de frontend/TSX
+- [ ] Adicionar Testing Library + jest-dom ao projeto
 - [ ] Escrever testes reais do WeeklyCalendar (renderização, dias, slots vazios)
 - [ ] Executar testes do WeeklyCalendar com sucesso no Vitest
-- [ ] Adicionar interação ao calendário (clicar em agendamento para ver detalhes)
-- [ ] Adicionar interação ao calendário (clicar em slot vazio para bloquear)
-- [ ] Testar responsividade do calendário em telas pequenas

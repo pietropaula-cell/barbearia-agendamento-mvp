@@ -22,6 +22,8 @@ import { format } from "date-fns";
 import { formatBR, formatTimeBR, formatDateBR } from "@/lib/dateUtils";
 import { ptBR } from "date-fns/locale";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { AppointmentDetailModal } from "@/components/AppointmentDetailModal";
+import { BlockSlotModal } from "@/components/BlockSlotModal";
 
 const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -582,6 +584,11 @@ function ServicesTab({ barbershopId }: { barbershopId: number }) {
 function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string }) {
   const [selectedBarberId, setSelectedBarberId] = useState<number | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [showAppointmentDetail, setShowAppointmentDetail] = useState(false);
+  const [selectedSlotDate, setSelectedSlotDate] = useState<Date | null>(null);
+  const [selectedSlotHour, setSelectedSlotHour] = useState<number | null>(null);
+  const [showBlockSlot, setShowBlockSlot] = useState(false);
 
   const { data: appointments, isLoading } = trpc.appointments.listByBarbershop.useQuery({ barbershopId });
   const { data: barbers } = trpc.barbers.list.useQuery({ barbershopId });
@@ -589,6 +596,11 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
 
   const updateMut = trpc.appointments.updateStatus.useMutation({
     onSuccess: () => { toast.success("Status atualizado!"); utils.appointments.listByBarbershop.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const blockMut = trpc.appointments.blockSlot.useMutation({
+    onSuccess: () => { toast.success("Horário bloqueado!"); utils.appointments.listByBarbershop.invalidate(); },
     onError: (e) => toast.error(e.message),
   });
 
@@ -708,13 +720,57 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
       ) : filteredAppointments ? (
-        <WeeklyCalendar
-          appointments={filteredAppointments}
-          weekStart={weekStart}
-          onAppointmentClick={(appt) => {
-            console.log("Agendamento clicado:", appt);
-          }}
-        />
+        <>
+          <WeeklyCalendar
+            appointments={filteredAppointments}
+            weekStart={weekStart}
+            onAppointmentClick={(appt) => {
+              setSelectedAppointment(appt);
+              setShowAppointmentDetail(true);
+            }}
+            onEmptySlotClick={(date, hour) => {
+              setSelectedSlotDate(date);
+              setSelectedSlotHour(hour);
+              setShowBlockSlot(true);
+            }}
+          />
+          <AppointmentDetailModal
+            appointment={selectedAppointment}
+            isOpen={showAppointmentDetail}
+            onClose={() => {
+              setShowAppointmentDetail(false);
+              setSelectedAppointment(null);
+            }}
+            onConfirm={(id) => {
+              updateMut.mutate({ id, status: "confirmed" });
+            }}
+            onCancel={(id) => {
+              if (confirm("Cancelar este agendamento?")) {
+                updateMut.mutate({ id, status: "cancelled" });
+              }
+            }}
+            isLoading={updateMut.isPending}
+          />
+          <BlockSlotModal
+            date={selectedSlotDate}
+            hour={selectedSlotHour}
+            isOpen={showBlockSlot}
+            onClose={() => {
+              setShowBlockSlot(false);
+              setSelectedSlotDate(null);
+              setSelectedSlotHour(null);
+            }}
+            onConfirm={(date, startHour, endHour, notes) => {
+              const barberId = selectedBarberId || barbers?.[0]?.id;
+              if (!barberId) return;
+              const [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+              const startsAt = new Date(Date.UTC(year, month - 1, day, startHour + 3, 0));
+              const endsAt = new Date(Date.UTC(year, month - 1, day, endHour + 3, 0));
+              blockMut.mutate({ barberId, barbershopId, startsAt, endsAt, notes });
+            }}
+            isLoading={blockMut.isPending}
+          />
+        </>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />

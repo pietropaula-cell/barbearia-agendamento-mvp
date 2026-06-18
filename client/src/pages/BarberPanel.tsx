@@ -13,6 +13,8 @@ import { getLoginUrl } from "@/const";
 import { formatDateBR, formatTimeBR } from "@/lib/dateUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { AppointmentDetailModal } from "@/components/AppointmentDetailModal";
+import { BlockSlotModal } from "@/components/BlockSlotModal";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendente", color: "border-yellow-500/40 text-yellow-400 bg-yellow-500/10" },
@@ -30,6 +32,11 @@ export default function BarberPanel() {
   const [blockEnd, setBlockEnd] = useState("10:00");
   const [blockNote, setBlockNote] = useState("");
   const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [showAppointmentDetail, setShowAppointmentDetail] = useState(false);
+  const [selectedSlotDate, setSelectedSlotDate] = useState<Date | null>(null);
+  const [selectedSlotHour, setSelectedSlotHour] = useState<number | null>(null);
+  const [showBlockSlot, setShowBlockSlot] = useState(false);
 
   // Find barber linked to this user
   const { data: barbershops } = trpc.barbershops.list.useQuery(
@@ -281,13 +288,56 @@ export default function BarberPanel() {
         ) : isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
         ) : weekAppointments ? (
-          <WeeklyCalendar
-            appointments={weekAppointments}
-            weekStart={weekStart}
-            onAppointmentClick={(appt) => {
-              console.log("Agendamento clicado:", appt);
-            }}
-          />
+          <>
+            <WeeklyCalendar
+              appointments={weekAppointments}
+              weekStart={weekStart}
+              onAppointmentClick={(appt) => {
+                setSelectedAppointment(appt);
+                setShowAppointmentDetail(true);
+              }}
+              onEmptySlotClick={(date, hour) => {
+                setSelectedSlotDate(date);
+                setSelectedSlotHour(hour);
+                setShowBlockSlot(true);
+              }}
+            />
+            <AppointmentDetailModal
+              appointment={selectedAppointment}
+              isOpen={showAppointmentDetail}
+              onClose={() => {
+                setShowAppointmentDetail(false);
+                setSelectedAppointment(null);
+              }}
+              onConfirm={(id) => {
+                updateMut.mutate({ id, status: "confirmed" });
+              }}
+              onCancel={(id) => {
+                if (confirm("Cancelar este agendamento?")) {
+                  updateMut.mutate({ id, status: "cancelled" });
+                }
+              }}
+              isLoading={updateMut.isPending}
+            />
+            <BlockSlotModal
+              date={selectedSlotDate}
+              hour={selectedSlotHour}
+              isOpen={showBlockSlot}
+              onClose={() => {
+                setShowBlockSlot(false);
+                setSelectedSlotDate(null);
+                setSelectedSlotHour(null);
+              }}
+              onConfirm={(date, startHour, endHour, notes) => {
+                if (!myBarber || !barbershopId) return;
+                const [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+                const startsAt = new Date(Date.UTC(year, month - 1, day, startHour + 3, 0));
+                const endsAt = new Date(Date.UTC(year, month - 1, day, endHour + 3, 0));
+                blockMut.mutate({ barberId: myBarber.id, barbershopId, startsAt, endsAt, notes });
+              }}
+              isLoading={blockMut.isPending}
+            />
+          </>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
             <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />

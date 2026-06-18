@@ -15,9 +15,10 @@ interface WeeklyCalendarProps {
   appointments: any[];
   weekStart: Date;
   onAppointmentClick?: (appointment: any) => void;
+  onEmptySlotClick?: (date: Date, hour: number) => void;
 }
 
-export function WeeklyCalendar({ appointments, weekStart, onAppointmentClick }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ appointments, weekStart, onAppointmentClick, onEmptySlotClick }: WeeklyCalendarProps) {
   const days = useMemo(() => {
     const result = [];
     for (let i = 0; i < 7; i++) {
@@ -88,7 +89,12 @@ export function WeeklyCalendar({ appointments, weekStart, onAppointmentClick }: 
                 return (
                   <div
                     key={`${dayIdx}-${hour}`}
-                    className="bg-background border border-border/50 rounded-lg p-2 min-h-24 flex flex-col gap-1"
+                    className="bg-background border border-border/50 rounded-lg p-2 min-h-24 flex flex-col gap-1 cursor-pointer hover:border-border transition-colors"
+                    onClick={() => {
+                      if (appts.length === 0) {
+                        onEmptySlotClick?.(day, hour);
+                      }
+                    }}
                   >
                     {appts.length > 0 ? (
                       appts.map((appt) => {
@@ -96,7 +102,10 @@ export function WeeklyCalendar({ appointments, weekStart, onAppointmentClick }: 
                         return (
                           <div
                             key={appt.id}
-                            onClick={() => onAppointmentClick?.(appt)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onAppointmentClick?.(appt);
+                            }}
                             className="bg-card border border-border rounded-lg p-2 cursor-pointer hover:border-primary/50 transition-colors"
                           >
                             <Badge variant="outline" className={`text-xs ${st.color} mb-1`}>
