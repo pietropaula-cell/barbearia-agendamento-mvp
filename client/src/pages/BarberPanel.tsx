@@ -73,7 +73,7 @@ export default function BarberPanel() {
     if (!appointments) return [];
     return appointments.filter((a: any) => {
       const apptDate = new Date(a.startsAt);
-      return apptDate >= weekStart && apptDate < weekEnd && a.status !== "blocked";
+      return apptDate >= weekStart && apptDate < weekEnd;
     }).sort((a: any, b: any) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
   }, [appointments, weekStart, weekEnd]);
 

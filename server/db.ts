@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, ne } from "drizzle-orm";
+import { and, eq, gte, lte, ne, lt, gt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   Appointment,
@@ -368,8 +368,8 @@ export async function getAppointmentsByBarbershop(
       barber: { id: barbers.id, name: barbers.name },
     })
     .from(appointments)
-    .innerJoin(customers, eq(appointments.customerId, customers.id))
-    .innerJoin(services, eq(appointments.serviceId, services.id))
+    .leftJoin(customers, eq(appointments.customerId, customers.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
     .innerJoin(barbers, eq(appointments.barberId, barbers.id))
     .where(and(...conditions))
     .orderBy(appointments.startsAt);
@@ -403,8 +403,8 @@ export async function getAppointmentsByBarber(
       service: { id: services.id, name: services.name, price: services.price, durationMin: services.durationMin },
     })
     .from(appointments)
-    .innerJoin(customers, eq(appointments.customerId, customers.id))
-    .innerJoin(services, eq(appointments.serviceId, services.id))
+    .leftJoin(customers, eq(appointments.customerId, customers.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
     .where(and(...conditions))
     .orderBy(appointments.startsAt);
 }
@@ -443,8 +443,8 @@ export async function hasConflict(
   const conditions: any[] = [
     eq(appointments.barberId, barberId),
     ne(appointments.status, "cancelled"),
-    lte(appointments.startsAt, endsAt),
-    gte(appointments.endsAt, startsAt),
+    lt(appointments.startsAt, endsAt),
+    gt(appointments.endsAt, startsAt),
   ];
   if (excludeId) conditions.push(ne(appointments.id, excludeId));
   const result = await db.select().from(appointments).where(and(...conditions)).limit(1);

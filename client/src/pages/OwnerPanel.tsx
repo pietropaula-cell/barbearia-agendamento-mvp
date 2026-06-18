@@ -761,8 +761,11 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
               setSelectedSlotHour(null);
             }}
             onConfirm={(date, startHour, endHour, notes) => {
-              const barberId = selectedBarberId || barbers?.[0]?.id;
-              if (!barberId) return;
+              if (!selectedBarberId) {
+                toast.error("Selecione um barbeiro antes de bloquear um horário");
+                return;
+              }
+              const barberId = selectedBarberId;
               const [year, month, day] = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
               const startsAt = new Date(Date.UTC(year, month - 1, day, startHour + 3, 0));
               const endsAt = new Date(Date.UTC(year, month - 1, day, endHour + 3, 0));
@@ -920,6 +923,7 @@ export default function OwnerPanel() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("agenda");
+  const utils = trpc.useUtils();
 
   const { data: barbershops } = trpc.barbershops.list.useQuery(
     undefined,
@@ -931,7 +935,7 @@ export default function OwnerPanel() {
   const toggleStatusMut = trpc.barbershops.toggleStatus.useMutation({
     onSuccess: () => {
       toast.success(barbershop?.active ? "Barbearia desativada" : "Barbearia ativada");
-      trpc.useUtils().barbershops.list.invalidate();
+      utils.barbershops.list.invalidate();
     },
     onError: (error: any) => toast.error(error.message),
   });
