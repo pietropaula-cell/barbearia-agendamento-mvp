@@ -241,4 +241,6 @@
 - [x] Remover blocos legados escondidos (`false && ...`) do BarberPanel e OwnerPanel
 - [x] Adicionar interação ao calendário (clicar em agendamento para ver detalhes)
 - [x] Adicionar interação ao calendário (clicar em slot vazio para bloquear)
+- [x] Corrigir desalinhamento do calendário semanal
 - [ ] Testar responsividade do calendário em telas pequenas
+- [ ] Deploy em produção para testes

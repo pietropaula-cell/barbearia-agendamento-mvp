@@ -277,19 +277,6 @@ export default function Booking() {
       </div>
 
       <div className="container max-w-lg mx-auto py-10 page-enter">
-        <div className="mb-6 rounded-xl overflow-hidden border border-border">
-          {barbershop?.fachadaUrl ? (
-            <img
-              src={barbershop.fachadaUrl}
-              alt={barbershop.name}
-              className="w-full h-48 object-cover"
-            />
-          ) : (
-            <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-              <Scissors className="w-12 h-12 text-primary/30" />
-            </div>
-          )}
-        </div>
         <StepIndicator current={step} total={5} accentColor={accentColor} />
         <p className="text-center text-xs text-muted-foreground mb-6 uppercase tracking-widest">
           Passo {step} de 5 — {STEP_LABELS[step - 1]}
