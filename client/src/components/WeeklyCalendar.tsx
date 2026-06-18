@@ -59,8 +59,10 @@ export function WeeklyCalendar({ appointments, weekStart, onAppointmentClick, on
   return (
     <div className="overflow-x-auto">
       <div className="min-w-full">
-        {/* Header com dias da semana */}
-        <div className="grid grid-cols-7 gap-2 mb-4">
+        {/* Header com dias da semana - com espaço para a coluna de horários */}
+        <div className="grid gap-2 mb-4" style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
+          {/* Espaço vazio para alinhar com a coluna de horários */}
+          <div></div>
           {days.map((day, idx) => (
             <div key={idx} className="bg-card border border-border rounded-lg p-3 text-center">
               <p className="text-xs text-muted-foreground uppercase">{dayNames[day.getDay()]}</p>
@@ -75,7 +77,7 @@ export function WeeklyCalendar({ appointments, weekStart, onAppointmentClick, on
         {/* Grid de horários */}
         <div className="space-y-2">
           {BUSINESS_HOURS.map((hour) => (
-            <div key={hour} className="grid grid-cols-8 gap-2 items-start">
+            <div key={hour} className="grid gap-2 items-start" style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
               {/* Label da hora */}
               <div className="text-xs text-muted-foreground font-medium pt-2 pr-2 text-right">
                 {String(hour).padStart(2, "0")}:00
