@@ -6,14 +6,21 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
-export function WhatsAppTemplatesTab() {
+interface WhatsAppTemplatesTabProps {
+  barbershopId: number | null;
+}
+
+export function WhatsAppTemplatesTab({ barbershopId }: WhatsAppTemplatesTabProps) {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [reminderMessage, setReminderMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestResult, setShowTestResult] = useState(false);
 
-  const { data: templates } = trpc.whatsapp.getMessageTemplates.useQuery();
+  const { data: templates } = trpc.whatsapp.getMessageTemplates.useQuery(
+    { barbershopId: barbershopId || 0 },
+    { enabled: !!barbershopId }
+  );
 
   const sendTestMut = trpc.whatsapp.sendTestMessages.useMutation({
     onSuccess: () => {
@@ -47,23 +54,33 @@ export function WhatsAppTemplatesTab() {
   }, [templates]);
 
   const handleSave = () => {
+    if (!barbershopId) {
+      toast.error("Selecione uma barbearia");
+      return;
+    }
     if (!confirmationMessage || !reminderMessage) {
       toast.error("Preencha ambas as mensagens");
       return;
     }
     updateMut.mutate({
+      barbershopId,
       confirmationMessage,
       reminderMessage,
     });
   };
 
   const handleTestMessage = (type: "confirmation" | "reminder") => {
+    if (!barbershopId) {
+      toast.error("Selecione uma barbearia");
+      return;
+    }
     const message = type === "confirmation" ? confirmationMessage : reminderMessage;
     if (!message) {
       toast.error("Preencha a mensagem antes de testar");
       return;
     }
     testMut.mutate({
+      barbershopId,
       messageType: type,
       message,
     });

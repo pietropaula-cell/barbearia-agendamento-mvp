@@ -270,6 +270,15 @@ export default function Booking() {
       )}
 
       <div className="container max-w-lg mx-auto py-10 page-enter">
+        {barbershop?.fachadaUrl && (
+          <div className="mb-6 rounded-xl overflow-hidden border border-border">
+            <img
+              src={barbershop.fachadaUrl}
+              alt={barbershop.name}
+              className="w-full h-48 object-cover"
+            />
+          </div>
+        )}
         <StepIndicator current={step} total={5} accentColor={accentColor} />
         <p className="text-center text-xs text-muted-foreground mb-6 uppercase tracking-widest">
           Passo {step} de 5 — {STEP_LABELS[step - 1]}

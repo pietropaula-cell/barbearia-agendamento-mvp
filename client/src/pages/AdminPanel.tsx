@@ -249,6 +249,11 @@ function BarbershopsTab() {
     onError: (e) => toast.error(e.message),
   });
 
+  const toggleActiveMut = trpc.barbershops.toggleStatus.useMutation({
+    onSuccess: () => { toast.success("Status atualizado."); utils.barbershops.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -320,11 +325,21 @@ function BarbershopsTab() {
                 </Dialog>
                 <Button
                   variant="outline"
-                  size="icon"
-                  className="w-8 h-8 bg-card border-border hover:border-destructive hover:text-destructive"
-                  onClick={() => { if (confirm("Excluir esta barbearia?")) deleteMut.mutate({ id: shop.id }); }}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => toggleActiveMut.mutate({ id: shop.id })}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  {shop.active ? (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5" />
+                      Desativar
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-3.5 h-3.5" />
+                      Ativar
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

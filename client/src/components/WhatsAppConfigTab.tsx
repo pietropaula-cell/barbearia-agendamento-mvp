@@ -37,7 +37,7 @@ export function WhatsAppConfigTab() {
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestResult, setShowTestResult] = useState(false);
 
-  const { data: barbershops } = trpc.barbershop.list.useQuery();
+  const { data: barbershops } = trpc.booking.getAllBarbershops.useQuery();
   const { data: config, isLoading } = trpc.whatsapp.getConfig.useQuery(
     { barbershopId: barbershopId || 0 },
     { enabled: !!barbershopId }

@@ -228,3 +228,9 @@
 - [x] Integrar endpoint /api/scheduled/whatsapp-reminder no Express
 - [x] Remover fallback fake de sucesso quando credenciais faltam
 - [ ] Criar job de cron após deploy no Railway (manus-heartbeat create)
+
+## Melhorias de UI - Barbearias e Agendamento (Jun 2026 - Rodada 6)
+- [ ] Selecionar barbearia - mostrar apenas barbearias ativas na lista
+- [ ] Lista de barbearias do admin - trocar botão excluir por ativar/desativar
+- [ ] Tela de agendamento - adicionar foto da fachada acima dos passos
+- [ ] Lista de barbearias disponíveis - adicionar foto da fachada acima do nome
