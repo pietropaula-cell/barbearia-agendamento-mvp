@@ -172,7 +172,7 @@ export async function updateUserRole(
 export async function getAllBarbershops(): Promise<Barbershop[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(barbershops).orderBy(barbershops.name);
+  return db.select().from(barbershops).where(eq(barbershops.active, true)).orderBy(barbershops.name);
 }
 
 export async function getBarbershopById(id: number): Promise<Barbershop | undefined> {
