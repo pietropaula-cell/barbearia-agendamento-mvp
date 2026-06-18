@@ -242,7 +242,3 @@
 - [x] Adicionar interação ao calendário (clicar em agendamento para ver detalhes)
 - [x] Adicionar interação ao calendário (clicar em slot vazio para bloquear)
 - [ ] Testar responsividade do calendário em telas pequenas
-- [ ] Configurar Vitest para descobrir testes de frontend/TSX
-- [ ] Adicionar Testing Library + jest-dom ao projeto
-- [ ] Escrever testes reais do WeeklyCalendar (renderização, dias, slots vazios)
-- [ ] Executar testes do WeeklyCalendar com sucesso no Vitest
