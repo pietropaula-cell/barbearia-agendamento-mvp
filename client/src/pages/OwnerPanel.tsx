@@ -21,6 +21,7 @@ import { getLoginUrl } from "@/const";
 import { format } from "date-fns";
 import { formatBR, formatTimeBR, formatDateBR } from "@/lib/dateUtils";
 import { ptBR } from "date-fns/locale";
+import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 
 const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -706,7 +707,15 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-      ) : sortedDays.length > 0 ? (
+      ) : filteredAppointments ? (
+        <WeeklyCalendar
+          appointments={filteredAppointments}
+          weekStart={weekStart}
+          onAppointmentClick={(appt) => {
+            console.log("Agendamento clicado:", appt);
+          }}
+        />
+      ) : false && sortedDays.length > 0 ? (
         <div className="space-y-6">
           {sortedDays.map((day) => (
             <div key={day}>

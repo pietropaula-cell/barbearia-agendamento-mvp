@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { formatDateBR, formatTimeBR } from "@/lib/dateUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: "Pendente", color: "border-yellow-500/40 text-yellow-400 bg-yellow-500/10" },
@@ -279,7 +280,15 @@ export default function BarberPanel() {
           </div>
         ) : isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-        ) : weekAppointments && weekAppointments.length > 0 ? (
+        ) : weekAppointments ? (
+          <WeeklyCalendar
+            appointments={weekAppointments}
+            weekStart={weekStart}
+            onAppointmentClick={(appt) => {
+              console.log("Agendamento clicado:", appt);
+            }}
+          />
+        ) : false && weekAppointments && weekAppointments.length > 0 ? (
           <div className="space-y-3">
             {weekAppointments.map((appt: any) => {
               const st = STATUS_LABELS[appt.status] ?? STATUS_LABELS.pending;

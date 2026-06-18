@@ -234,3 +234,13 @@
 - [x] Lista de barbearias do admin - trocar botão excluir por ativar/desativar
 - [x] Tela de agendamento - adicionar foto da fachada acima dos passos
 - [x] Lista de barbearias disponíveis - adicionar foto da fachada acima do nome
+
+## Calendário Semanal (Jun 2026 - Rodada 7)
+- [x] Renderizar WeeklyCalendar no BarberPanel mesmo quando sem agendamentos (exibir grade vazia)
+- [x] Renderizar WeeklyCalendar no OwnerPanel mesmo quando sem agendamentos (exibir grade vazia)
+- [ ] Remover blocos legados escondidos (`false && ...`) do BarberPanel e OwnerPanel
+- [ ] Escrever testes reais do WeeklyCalendar (renderização, dias, slots vazios)
+- [ ] Executar testes do WeeklyCalendar com sucesso no Vitest
+- [ ] Adicionar interação ao calendário (clicar em agendamento para ver detalhes)
+- [ ] Adicionar interação ao calendário (clicar em slot vazio para bloquear)
+- [ ] Testar responsividade do calendário em telas pequenas
