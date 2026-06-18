@@ -238,7 +238,7 @@
 ## Calendário Semanal (Jun 2026 - Rodada 7)
 - [x] Renderizar WeeklyCalendar no BarberPanel mesmo quando sem agendamentos (exibir grade vazia)
 - [x] Renderizar WeeklyCalendar no OwnerPanel mesmo quando sem agendamentos (exibir grade vazia)
-- [ ] Remover blocos legados escondidos (`false && ...`) do BarberPanel e OwnerPanel
+- [x] Remover blocos legados escondidos (`false && ...`) do BarberPanel e OwnerPanel
 - [ ] Escrever testes reais do WeeklyCalendar (renderização, dias, slots vazios)
 - [ ] Executar testes do WeeklyCalendar com sucesso no Vitest
 - [ ] Adicionar interação ao calendário (clicar em agendamento para ver detalhes)

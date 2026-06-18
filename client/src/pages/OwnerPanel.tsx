@@ -715,68 +715,6 @@ function AgendaTab({ barbershopId, slug }: { barbershopId: number; slug: string 
             console.log("Agendamento clicado:", appt);
           }}
         />
-      ) : false && sortedDays.length > 0 ? (
-        <div className="space-y-6">
-          {sortedDays.map((day) => (
-            <div key={day}>
-              <h3 className="font-semibold text-foreground mb-3">{day}</h3>
-              <div className="space-y-2">
-                {appointmentsByDay[day].map((appt: any) => {
-            const st = STATUS_LABELS[appt.status] ?? STATUS_LABELS.pending;
-            return (
-              <div key={appt.id} className="bg-card border border-border rounded-xl p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className={`text-xs ${st.color}`}>{st.label}</Badge>
-                    </div>
-                    <p className="font-semibold text-foreground">{appt.customer?.name ?? "Cliente"}</p>
-                    <p className="text-muted-foreground text-sm">{appt.customer?.phone}</p>
-                    <p className="text-muted-foreground text-sm">{appt.service?.name}</p>
-                    <p className="text-muted-foreground text-xs mt-1">Barbeiro: {appt.barber?.name ?? "N/A"}</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <span className="text-muted-foreground text-xs flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDateBR(appt.startsAt)}
-                      </span>
-                      <span className="text-muted-foreground text-xs flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatTimeBR(appt.startsAt)}
-                      </span>
-                      <span className="text-primary text-xs font-semibold">
-                        R$ {Number(appt.service?.price ?? 0).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                  {appt.status !== "cancelled" && appt.status !== "blocked" && (
-                    <div className="flex gap-2 flex-shrink-0">
-                      {appt.status === "pending" && (
-                        <Button
-                          size="sm"
-                          className="text-xs"
-                          onClick={() => updateMut.mutate({ id: appt.id, status: "confirmed" })}
-                        >
-                          Confirmar
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-xs bg-card border-border hover:border-destructive hover:text-destructive"
-                        onClick={() => { if (confirm("Cancelar este agendamento?")) updateMut.mutate({ id: appt.id, status: "cancelled" }); }}
-                      >
-                        Cancelar
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />

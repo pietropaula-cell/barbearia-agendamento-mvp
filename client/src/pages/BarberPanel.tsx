@@ -288,67 +288,6 @@ export default function BarberPanel() {
               console.log("Agendamento clicado:", appt);
             }}
           />
-        ) : false && weekAppointments && weekAppointments.length > 0 ? (
-          <div className="space-y-3">
-            {weekAppointments.map((appt: any) => {
-              const st = STATUS_LABELS[appt.status] ?? STATUS_LABELS.pending;
-              return (
-                <div key={appt.id} className="bg-card border border-border rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className={`text-xs ${st.color}`}>{st.label}</Badge>
-                      </div>
-                      {appt.status !== "blocked" ? (
-                        <>
-                          <p className="font-semibold text-foreground">{appt.customer?.name ?? "Cliente"}</p>
-                          <p className="text-muted-foreground text-sm">{appt.service?.name}</p>
-                        </>
-                      ) : (
-                        <p className="font-semibold text-foreground">Horário Bloqueado</p>
-                      )}
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-muted-foreground text-xs flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDateBR(appt.startsAt)}
-                        </span>
-                        <span className="text-muted-foreground text-xs flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatTimeBR(appt.startsAt)} — {formatTimeBR(appt.endsAt)}
-                        </span>
-                        {appt.service && (
-                          <span className="text-primary text-xs font-semibold">
-                            R$ {Number(appt.service.price).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {appt.status !== "cancelled" && appt.status !== "blocked" && (
-                      <div className="flex gap-2 flex-shrink-0">
-                        {appt.status === "pending" && (
-                          <Button
-                            size="sm"
-                            className="text-xs gap-1"
-                            onClick={() => updateMut.mutate({ id: appt.id, status: "confirmed" })}
-                          >
-                            <Check className="w-3 h-3" /> Confirmar
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs bg-card border-border hover:border-destructive hover:text-destructive gap-1"
-                          onClick={() => { if (confirm("Cancelar este agendamento?")) updateMut.mutate({ id: appt.id, status: "cancelled" }); }}
-                        >
-                          <X className="w-3 h-3" /> Cancelar
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
             <Calendar className="w-10 h-10 mx-auto mb-3 opacity-30" />
