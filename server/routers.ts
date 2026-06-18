@@ -13,6 +13,7 @@ import {
   deleteService,
   deleteUser,
   getAllBarbershops,
+  getAllBarbershopsIncludingInactive,
   getAllUsers,
   getAppointmentById,
   getAppointmentsByBarber,
@@ -153,7 +154,7 @@ export const appRouter = router({
   barbershops: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       requireRole(ctx.user.role, ["admin", "owner", "barber"]);
-      if (ctx.user.role === "admin") return getAllBarbershops();
+      if (ctx.user.role === "admin") return getAllBarbershopsIncludingInactive();
       if (ctx.user.barbershopId) { const b = await getBarbershopById(ctx.user.barbershopId); return b ? [b] : []; }
       return [];
     }),

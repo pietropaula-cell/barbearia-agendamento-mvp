@@ -175,6 +175,12 @@ export async function getAllBarbershops(): Promise<Barbershop[]> {
   return db.select().from(barbershops).where(eq(barbershops.active, true)).orderBy(barbershops.name);
 }
 
+export async function getAllBarbershopsIncludingInactive(): Promise<Barbershop[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(barbershops).orderBy(barbershops.name);
+}
+
 export async function getBarbershopById(id: number): Promise<Barbershop | undefined> {
   const db = await getDb();
   if (!db) return undefined;
